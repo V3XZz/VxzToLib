@@ -370,42 +370,275 @@ VxzToLib:Destroy()
 6. **Animated Notifications**: Modern notifications above jump button
 7. **Protection**: Auto-removes previous instances
 
+
 ## Example Script
-```lua
+```Lua
+-- Load the library (replace with your actual URL)
 local VxzToLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/yourusername/VxzToLib/main/source.lua'))()
 
+-- Create the main window
 local Window = VxzToLib:MakeWindow({
-    Name = "Hacker Toolkit",
+    Name = "Hacker Toolkit v2.0",
+    HidePremium = false,
     SaveConfig = true,
-    ConfigFolder = "HackerConfig",
-    IntroEnabled = true
+    ConfigFolder = "VxzToConfig",
+    IntroEnabled = true,
+    IntroText = "Initializing Exploit System...",
+    IntroIcon = "rbxassetid://6031094678",
+    Icon = "rbxassetid://6031094678",
+    CloseCallback = function()
+        print("Hacker Toolkit closed")
+    end
 })
 
-local MainTab = Window:MakeTab({Name = "Main"})
+-- Create tabs
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://6031094678",
+    PremiumOnly = false
+})
 
-local CombatSection = MainTab:AddSection({Name = "Combat"})
+local PlayerTab = Window:MakeTab({
+    Name = "Player",
+    Icon = "rbxassetid://6031094678"
+})
+
+local VisualTab = Window:MakeTab({
+    Name = "Visual",
+    Icon = "rbxassetid://6031094678"
+})
+
+-- Main Tab Content
+local CombatSection = MainTab:AddSection({
+    Name = "Combat Hacks"
+})
 
 CombatSection:AddButton({
-    Name = "Kill All",
+    Name = "Kill All Players",
     Callback = function()
+        -- Your kill all function here
         VxzToLib:MakeNotification({
             Name = "Combat",
-            Content = "Killed all players!",
+            Content = "Eliminated all targets!",
+            Image = "rbxassetid://6031094678",
             Time = 3
         })
     end
 })
 
-local ToggleSection = MainTab:AddSection({Name = "Toggles"})
-
-ToggleSection:AddToggle({
+local GodToggle = CombatSection:AddToggle({
     Name = "God Mode",
     Default = false,
+    Save = true,
     Flag = "GodMode",
     Callback = function(Value)
-        print("God Mode:", Value)
-    end
+        -- Your god mode function here
+        if Value then
+            VxzToLib:MakeNotification({
+                Name = "Combat",
+                Content = "God Mode Activated",
+                Image = "rbxassetid://6031094678",
+                Time = 2
+            })
+        end
+    end    
 })
 
+local AutoFarmSection = MainTab:AddSection({
+    Name = "Automation"
+})
+
+AutoFarmSection:AddToggle({
+    Name = "Auto Farm Coins",
+    Default = false,
+    Save = true,
+    Flag = "AutoFarm",
+    Callback = function(Value)
+        -- Your auto farm function here
+    end    
+})
+
+AutoFarmSection:AddSlider({
+    Name = "Farm Speed",
+    Min = 1,
+    Max = 10,
+    Default = 5,
+    Color = Color3.fromRGB(180, 80, 255),
+    Increment = 1,
+    ValueName = "speed",
+    Save = true,
+    Flag = "FarmSpeed",
+    Callback = function(Value)
+        -- Set farm speed
+    end    
+})
+
+-- Player Tab Content
+local MovementSection = PlayerTab:AddSection({
+    Name = "Movement"
+})
+
+MovementSection:AddSlider({
+    Name = "Walk Speed",
+    Min = 16,
+    Max = 200,
+    Default = 16,
+    Color = Color3.fromRGB(180, 80, 255),
+    Increment = 1,
+    ValueName = "studs",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end    
+})
+
+MovementSection:AddSlider({
+    Name = "Jump Power",
+    Min = 50,
+    Max = 500,
+    Default = 50,
+    Color = Color3.fromRGB(180, 80, 255),
+    Increment = 10,
+    ValueName = "power",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+    end    
+})
+
+local FlyToggle = MovementSection:AddToggle({
+    Name = "Fly Hack",
+    Default = false,
+    Save = true,
+    Flag = "FlyHack",
+    Callback = function(Value)
+        -- Your fly hack function here
+        if Value then
+            VxzToLib:MakeNotification({
+                Name = "Movement",
+                Content = "Flight Systems Activated",
+                Image = "rbxassetid://6031094678",
+                Time = 2
+            })
+        end
+    end    
+})
+
+local FlyBind = MovementSection:AddBind({
+    Name = "Fly Toggle Key",
+    Default = Enum.KeyCode.F,
+    Hold = false,
+    Save = true,
+    Flag = "FlyToggleKey",
+    Callback = function()
+        FlyToggle:Set(not FlyToggle.Value)
+    end    
+})
+
+-- Visual Tab Content
+local ESP = VisualTab:AddSection({
+    Name = "ESP"
+})
+
+local ESPToggle = ESP:AddToggle({
+    Name = "Player ESP",
+    Default = false,
+    Save = true,
+    Flag = "PlayerESP",
+    Callback = function(Value)
+        -- Your ESP function here
+    end    
+})
+
+local ESPColor = ESP:AddColorpicker({
+    Name = "ESP Color",
+    Default = Color3.fromRGB(180, 80, 255),
+    Save = true,
+    Flag = "ESPColor",
+    Callback = function(Value)
+        -- Update ESP color
+    end	  
+})
+
+local ChamsSection = VisualTab:AddSection({
+    Name = "Character"
+})
+
+local ChamsToggle = ChamsSection:AddToggle({
+    Name = "X-Ray Chams",
+    Default = false,
+    Save = true,
+    Flag = "XRayChams",
+    Callback = function(Value)
+        -- Your chams function here
+    end    
+})
+
+-- Create a dropdown for character effects
+local EffectsDropdown = ChamsSection:AddDropdown({
+    Name = "Character Effects",
+    Default = "None",
+    Options = {"None", "Glow", "Wireframe", "Rainbow"},
+    Save = true,
+    Flag = "CharEffects",
+    Callback = function(Value)
+        -- Apply character effect
+    end    
+})
+
+-- Add some informational elements
+local InfoSection = MainTab:AddSection({
+    Name = "Information"
+})
+
+InfoSection:AddParagraph("Welcome!", "Welcome to Hacker Toolkit v2.0")
+InfoSection:AddLabel("Status: Active")
+InfoSection:AddTextbox({
+    Name = "Command Input",
+    Default = "Type commands here",
+    TextDisappear = true,
+    Callback = function(Value)
+        -- Handle command input
+        VxzToLib:MakeNotification({
+            Name = "Command",
+            Content = "Executed: "..Value,
+            Image = "rbxassetid://6031094678",
+            Time = 3
+        })
+    end	  
+})
+
+-- Initialize the UI (REQUIRED)
 VxzToLib:Init()
+
+-- Show welcome notification
+VxzToLib:MakeNotification({
+    Name = "System Online",
+    Content = "Hacker Toolkit initialized successfully!",
+    Image = "rbxassetid://6031094678",
+    Time = 5
+})
+
+-- Demonstration of flag usage
+spawn(function()
+    while wait(5) do
+        if VxzToLib.Flags["GodMode"].Value then
+            print("God Mode is active")
+        end
+        if VxzToLib.Flags["AutoFarm"].Value then
+            print("Auto Farming at speed:", VxzToLib.Flags["FarmSpeed"].Value)
+        end
+    end
+end)
+
+-- Optional: Add a way to destroy the UI
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.End then
+        VxzToLib:Destroy()
+        VxzToLib:MakeNotification({
+            Name = "System Offline",
+            Content = "Hacker Toolkit terminated",
+            Image = "rbxassetid://6031094678",
+            Time = 3
+        })
+    end
+end)
 ```
