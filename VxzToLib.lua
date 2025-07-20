@@ -1,32 +1,29 @@
 local VxzToLib = {Flags = {}, Tabs = {}, Config = {}, Theme = {}}
 
--- Services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
--- Theme with high-contrast colors
 VxzToLib.Theme = {
-    BackgroundColor = Color3.fromRGB(60, 60, 65),  -- Dark grey background
-    BorderColor = Color3.fromRGB(180, 80, 255),    -- Vibrant purple border
-    BorderThickness = 3,                           -- Thicker border for visibility
-    TextColor = Color3.fromRGB(240, 240, 240),     -- Bright text for contrast
-    AccentColor = Color3.fromRGB(200, 100, 255),   -- Brighter accent color
-    ButtonColor = Color3.fromRGB(70, 70, 75),      -- Medium grey
-    ButtonHoverColor = Color3.fromRGB(90, 90, 95), -- Light grey
-    ButtonClickColor = Color3.fromRGB(130, 60, 230),-- Deep purple
-    TabColor = Color3.fromRGB(65, 65, 70),         -- Tab grey
-    TabSelectedColor = Color3.fromRGB(110, 60, 200),-- Selected tab purple
-    ToggleOnColor = Color3.fromRGB(130, 60, 230),  -- Toggle on purple
-    ToggleOffColor = Color3.fromRGB(90, 90, 95),   -- Toggle off grey
-    TitleBarColor = Color3.fromRGB(65, 65, 70),    -- Title bar grey
-    SectionColor = Color3.fromRGB(180, 80, 255),   -- Section accent purple
-    NotificationColor = Color3.fromRGB(60, 60, 65),-- Notification grey
-    Font = Enum.Font.GothamBold                    -- Bold font for readability
+    BackgroundColor = Color3.fromRGB(45, 45, 50),
+    BorderColor = Color3.fromRGB(150, 80, 220),
+    BorderThickness = 2,
+    TextColor = Color3.fromRGB(220, 220, 220),
+    AccentColor = Color3.fromRGB(180, 80, 255),
+    ButtonColor = Color3.fromRGB(55, 55, 60),
+    ButtonHoverColor = Color3.fromRGB(65, 65, 70),
+    ButtonClickColor = Color3.fromRGB(100, 50, 180),
+    TabColor = Color3.fromRGB(50, 50, 55),
+    TabSelectedColor = Color3.fromRGB(80, 40, 120),
+    ToggleOnColor = Color3.fromRGB(100, 50, 180),
+    ToggleOffColor = Color3.fromRGB(65, 65, 70),
+    TitleBarColor = Color3.fromRGB(50, 50, 55),
+    SectionColor = Color3.fromRGB(100, 50, 150),
+    NotificationColor = Color3.fromRGB(45, 45, 50),
+    Font = Enum.Font.GothamMedium
 }
 
--- Helper functions
 local function Tween(instance, props, duration)
     local tween = TweenService:Create(instance, TweenInfo.new(duration, Enum.EasingStyle.Quint), props)
     tween:Play()
@@ -36,16 +33,11 @@ end
 local function Create(class, props)
     local instance = Instance.new(class)
     for prop, value in pairs(props) do
-        if prop == "Parent" then 
-            instance.Parent = value
-        else
-            instance[prop] = value
-        end
+        instance[prop] = value
     end
     return instance
 end
 
--- Create window
 function VxzToLib:MakeWindow(options)
     if self.ScreenGui then self.ScreenGui:Destroy() end
     
@@ -60,7 +52,6 @@ function VxzToLib:MakeWindow(options)
         Parent = CoreGui
     })
     
-    -- Main window with thick purple border
     self.Window = Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -69,39 +60,26 @@ function VxzToLib:MakeWindow(options)
         Parent = self.ScreenGui
     })
     
-    -- Rounded corners
-    Create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = self.Window})
+    Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = self.Window})
     
-    -- Vibrant purple border
     local Border = Create("Frame", {
         Size = UDim2.new(1, self.Theme.BorderThickness*2, 1, self.Theme.BorderThickness*2),
         Position = UDim2.new(0, -self.Theme.BorderThickness, 0, -self.Theme.BorderThickness),
         BackgroundColor3 = self.Theme.BorderColor,
+        BackgroundTransparency = 0.1,
         ZIndex = 0,
         Parent = self.Window
     })
     
-    Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = Border})
+    Create("UICorner", {CornerRadius = UDim.new(0, 16), Parent = Border})
     
-    -- Add gradient for "shiny" effect
-    local borderGradient = Create("UIGradient", {
-        Rotation = 90,
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 50, 230)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 100, 255)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 50, 230))
-        }),
-        Parent = Border
-    })
-    
-    -- Title bar with purple accent
     local TitleBar = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 40),
+        Size = UDim2.new(1, 0, 0, 36),
         BackgroundColor3 = self.Theme.TitleBarColor,
         Parent = self.Window
     })
     
-    Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = TitleBar})
+    Create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = TitleBar})
     
     Create("TextLabel", {
         AnchorPoint = Vector2.new(0, 0.5),
@@ -110,47 +88,45 @@ function VxzToLib:MakeWindow(options)
         BackgroundTransparency = 1,
         Text = self.Config.Name,
         TextColor3 = self.Theme.TextColor,
-        Font = self.Theme.Font,
-        TextSize = 18,  -- Larger text for visibility
+        Font = Enum.Font.GothamBold,
+        TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = TitleBar
     })
     
-    -- Window controls
     local Controls = Create("Frame", {
         AnchorPoint = Vector2.new(1, 0.5),
-        Position = UDim2.new(1, -15, 0.5, 0),
-        Size = UDim2.new(0, 80, 0, 30),
+        Position = UDim2.new(1, -10, 0.5, 0),
+        Size = UDim2.new(0, 80, 0, 24),
         BackgroundTransparency = 1,
         Parent = TitleBar
     })
     
     self.MinimizeButton = Create("ImageButton", {
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.3, 0, 0.5, 0),
-        Size = UDim2.new(0, 24, 0, 24),
+        Position = UDim2.new(0.25, 0, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
-        Image = "rbxassetid://6031094667",  -- Dash icon
+        Image = "rbxassetid://6031094667",
         ImageColor3 = self.Theme.AccentColor,
         Parent = Controls
     })
     
     self.CloseButton = Create("ImageButton", {
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.7, 0, 0.5, 0),
-        Size = UDim2.new(0, 24, 0, 24),
+        Position = UDim2.new(0.75, 0, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
-        Image = "rbxassetid://6031094670",  -- X icon
+        Image = "rbxassetid://6031094670",
         ImageColor3 = self.Theme.AccentColor,
         Parent = Controls
     })
     
-    -- Tab area
     self.TabScroller = Create("ScrollingFrame", {
-        Size = UDim2.new(0, 130, 1, -100),
-        Position = UDim2.new(0, 10, 0, 50),
+        Size = UDim2.new(0, 120, 1, -100),
+        Position = UDim2.new(0, 0, 0, 40),
         BackgroundTransparency = 1,
-        ScrollBarThickness = 6,  -- Thicker scrollbar
+        ScrollBarThickness = 4,
         ScrollBarImageColor3 = self.Theme.BorderColor,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         Parent = self.Window
@@ -165,7 +141,7 @@ function VxzToLib:MakeWindow(options)
     local TabLayout = Create("UIListLayout", {
         Parent = self.TabContainer,
         FillDirection = Enum.FillDirection.Vertical,
-        Padding = UDim.new(0, 10),
+        Padding = UDim.new(0, 8),
         HorizontalAlignment = Enum.HorizontalAlignment.Center
     })
     
@@ -173,35 +149,48 @@ function VxzToLib:MakeWindow(options)
         self.TabScroller.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
     end)
     
-    -- Content area
     self.ContentContainer = Create("ScrollingFrame", {
-        Size = UDim2.new(1, -160, 1, -120),
-        Position = UDim2.new(0, 150, 0, 100),
+        Size = UDim2.new(1, -140, 1, -110),
+        Position = UDim2.new(0, 130, 0, 90),
         BackgroundTransparency = 1,
-        ScrollBarThickness = 6,  -- Thicker scrollbar
+        ScrollBarThickness = 4,
         ScrollBarImageColor3 = self.Theme.BorderColor,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         Parent = self.Window
     })
     
     Create("UIPadding", {
-        PaddingTop = UDim.new(0, 10),
-        PaddingBottom = UDim.new(0, 10),
-        PaddingLeft = UDim.new(0, 10),
-        PaddingRight = UDim.new(0, 10),
+        PaddingTop = UDim.new(0, 5),
+        PaddingBottom = UDim.new(0, 5),
+        PaddingLeft = UDim.new(0, 5),
+        PaddingRight = UDim.new(0, 5),
         Parent = self.ContentContainer
     })
     
     local ContentLayout = Create("UIListLayout", {
         Parent = self.ContentContainer,
-        Padding = UDim.new(0, 15)  -- More spacing
+        Padding = UDim.new(0, 12)
     })
     
     ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         self.ContentContainer.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y)
     end)
     
-    -- Dragging functionality
+    self.NotificationContainer = Create("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, 10),
+        Size = UDim2.new(0, 300, 0, 0),
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
+        Parent = self.ScreenGui
+    })
+    
+    Create("UIListLayout", {
+        Parent = self.NotificationContainer,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 10)
+    })
+    
     local dragging, dragStart, startPos
     TitleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -215,10 +204,11 @@ function VxzToLib:MakeWindow(options)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             self.Window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        elseif input.UserInputType == Enum.UserInputType.None then
+            dragging = false
         end
     end)
     
-    -- Close button
     self.CloseButton.MouseButton1Click:Connect(function()
         self.Config.CloseCallback()
         Tween(self.Window, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, 0.3)
@@ -226,12 +216,11 @@ function VxzToLib:MakeWindow(options)
         self.ScreenGui:Destroy()
     end)
     
-    -- Minimize button
     local minimized = false
     self.MinimizeButton.MouseButton1Click:Connect(function()
         minimized = not minimized
         if minimized then
-            Tween(self.Window, {Size = UDim2.new(0, 600, 0, 40)}, 0.3)
+            Tween(self.Window, {Size = UDim2.new(0, 600, 0, 36)}, 0.3)
             self.TabScroller.Visible = false
             self.ContentContainer.Visible = false
         else
@@ -241,7 +230,6 @@ function VxzToLib:MakeWindow(options)
         end
     end)
     
-    -- Toggle UI with LeftShift
     UserInputService.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.LeftShift then
             self.ScreenGui.Enabled = not self.ScreenGui.Enabled
@@ -251,15 +239,14 @@ function VxzToLib:MakeWindow(options)
     return self
 end
 
--- Create tabs
 function VxzToLib:MakeTab(options)
     local TabButton = Create("TextButton", {
-        Size = UDim2.new(0.95, 0, 0, 45),  -- Larger tabs
+        Size = UDim2.new(0.9, 0, 0, 40),
         BackgroundColor3 = self.Theme.TabColor,
         Text = options.Name or "Tab",
         TextColor3 = self.Theme.TextColor,
         Font = self.Theme.Font,
-        TextSize = 14,
+        TextSize = 13,
         Parent = self.TabContainer
     })
     
@@ -274,7 +261,7 @@ function VxzToLib:MakeTab(options)
     
     local TabLayout = Create("UIListLayout", {
         Parent = TabContent,
-        Padding = UDim.new(0, 15)  -- More spacing
+        Padding = UDim.new(0, 12)
     })
     
     TabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -308,7 +295,6 @@ function VxzToLib:MakeTab(options)
     return tabObj
 end
 
--- Create sections
 function VxzToLib.AddSection(parent, options)
     local SectionFrame = Create("Frame", {
         Size = UDim2.new(1, -10, 0, 0),
@@ -316,29 +302,28 @@ function VxzToLib.AddSection(parent, options)
         Parent = parent
     })
     
-    -- Section header with purple accent
     Create("TextLabel", {
         Position = UDim2.new(0, 0, 0, 0),
-        Size = UDim2.new(1, 0, 0, 28),  -- Taller header
+        Size = UDim2.new(1, 0, 0, 24),
         BackgroundTransparency = 1,
-        Text = "  " .. (options.Name or "Section"),  -- Added space for visual separation
+        Text = options.Name or "Section",
         TextColor3 = VxzToLib.Theme.AccentColor,
-        Font = VxzToLib.Theme.Font,
-        TextSize = 16,  -- Larger text
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = SectionFrame
     })
     
-    -- Purple separator
     Create("Frame", {
-        Position = UDim2.new(0, 0, 0, 30),
-        Size = UDim2.new(1, 0, 0, 2),  -- Thicker separator
+        Position = UDim2.new(0, 0, 0, 26),
+        Size = UDim2.new(1, 0, 0, 1),
         BackgroundColor3 = VxzToLib.Theme.SectionColor,
+        BackgroundTransparency = 0.3,
         Parent = SectionFrame
     })
     
     local SectionContent = Create("Frame", {
-        Position = UDim2.new(0, 0, 0, 38),  -- More space below separator
+        Position = UDim2.new(0, 0, 0, 32),
         Size = UDim2.new(1, 0, 0, 0),
         BackgroundTransparency = 1,
         Parent = SectionFrame
@@ -346,12 +331,12 @@ function VxzToLib.AddSection(parent, options)
     
     local SectionLayout = Create("UIListLayout", {
         Parent = SectionContent,
-        Padding = UDim.new(0, 12)  -- More spacing between controls
+        Padding = UDim.new(0, 10)
     })
     
     SectionLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         SectionContent.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y)
-        SectionFrame.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y + 42)
+        SectionFrame.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y + 38)
     end)
     
     return {
@@ -366,10 +351,9 @@ function VxzToLib.AddSection(parent, options)
     }
 end
 
--- Create buttons
 function VxzToLib.AddButton(parent, options)
     local Button = Create("TextButton", {
-        Size = UDim2.new(1, -10, 0, 40),  -- Wider with margin
+        Size = UDim2.new(1, -5, 0, 36),
         Position = UDim2.new(0, 5, 0, 0),
         BackgroundColor3 = VxzToLib.Theme.ButtonColor,
         Text = options.Name or "Button",
@@ -382,7 +366,6 @@ function VxzToLib.AddButton(parent, options)
     
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Button})
     
-    -- Hover effects
     Button.MouseEnter:Connect(function()
         Tween(Button, {BackgroundColor3 = VxzToLib.Theme.ButtonHoverColor}, 0.2)
         Button.Text = "> " .. (options.Name or "Button")
@@ -393,7 +376,6 @@ function VxzToLib.AddButton(parent, options)
         Button.Text = options.Name or "Button"
     end)
     
-    -- Click effects
     Button.MouseButton1Click:Connect(function()
         if options.Callback then 
             Tween(Button, {BackgroundColor3 = VxzToLib.Theme.ButtonClickColor}, 0.1)
@@ -406,10 +388,9 @@ function VxzToLib.AddButton(parent, options)
     return Button
 end
 
--- Create toggles
 function VxzToLib.AddToggle(parent, options)
     local ToggleFrame = Create("TextButton", {
-        Size = UDim2.new(1, -10, 0, 40),  -- Wider with margin
+        Size = UDim2.new(1, -5, 0, 36),
         Position = UDim2.new(0, 5, 0, 0),
         BackgroundColor3 = VxzToLib.Theme.ButtonColor,
         Text = "",
@@ -421,7 +402,7 @@ function VxzToLib.AddToggle(parent, options)
     
     Create("TextLabel", {
         AnchorPoint = Vector2.new(0, 0.5),
-        Position = UDim2.new(0, 15, 0.5, 0),
+        Position = UDim2.new(0, 10, 0.5, 0),
         Size = UDim2.new(0.7, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = options.Name or "Toggle",
@@ -435,7 +416,7 @@ function VxzToLib.AddToggle(parent, options)
     local ToggleButton = Create("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
         Position = UDim2.new(1, -15, 0.5, 0),
-        Size = UDim2.new(0, 55, 0, 28),  -- Larger toggle
+        Size = UDim2.new(0, 50, 0, 26),
         BackgroundColor3 = options.Default and VxzToLib.Theme.ToggleOnColor or VxzToLib.Theme.ToggleOffColor,
         Text = "",
         AutoButtonColor = false,
@@ -447,8 +428,8 @@ function VxzToLib.AddToggle(parent, options)
     local ToggleCircle = Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(options.Default and 0.75 or 0.25, 0, 0.5, 0),
-        Size = UDim2.new(0, 22, 0, 22),  -- Larger circle
-        BackgroundColor3 = Color3.fromRGB(250, 220, 255),  -- Brighter circle
+        Size = UDim2.new(0, 20, 0, 20),
+        BackgroundColor3 = Color3.fromRGB(240, 200, 255),
         Parent = ToggleButton
     })
     
@@ -472,27 +453,21 @@ function VxzToLib.AddToggle(parent, options)
     return toggleObj
 end
 
--- Notification system
 function VxzToLib:MakeNotification(options)
     local Notification = Create("Frame", {
-        Size = UDim2.new(0, 300, 0, 0),  -- Wider notifications
+        Size = UDim2.new(0, 280, 0, 0),
         BackgroundColor3 = VxzToLib.Theme.NotificationColor,
-        Parent = self.ScreenGui
+        LayoutOrder = 999,
+        Parent = self.NotificationContainer
     })
     
-    Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = Notification})
-    
-    -- Purple border for notifications
-    Create("UIStroke", {
-        Color = VxzToLib.Theme.BorderColor,
-        Thickness = 3,  -- Thicker border
-        Parent = Notification
-    })
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Notification})
+    Create("UIStroke", {Color = VxzToLib.Theme.BorderColor, Thickness = 2, Parent = Notification})
     
     Create("ImageLabel", {
         AnchorPoint = Vector2.new(0, 0.5),
-        Position = UDim2.new(0, 15, 0.5, 0),
-        Size = UDim2.new(0, 25, 0, 25),  -- Larger icon
+        Position = UDim2.new(0, 10, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
         Image = options.Image or "rbxassetid://6031094678",
         ImageColor3 = VxzToLib.Theme.AccentColor,
@@ -501,41 +476,40 @@ function VxzToLib:MakeNotification(options)
     
     Create("TextLabel", {
         AnchorPoint = Vector2.new(0, 0),
-        Position = UDim2.new(0, 45, 0, 10),
-        Size = UDim2.new(1, -60, 0, 25),
+        Position = UDim2.new(0, 35, 0, 8),
+        Size = UDim2.new(1, -45, 0, 20),
         BackgroundTransparency = 1,
         Text = options.Name or "Notification",
         TextColor3 = VxzToLib.Theme.TextColor,
-        Font = VxzToLib.Theme.Font,
-        TextSize = 15,  -- Larger text
+        Font = Enum.Font.GothamBold,
+        TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = Notification
     })
     
     local ContentLabel = Create("TextLabel", {
         AnchorPoint = Vector2.new(0, 0),
-        Position = UDim2.new(0, 15, 0, 40),
-        Size = UDim2.new(1, -30, 0, 0),
+        Position = UDim2.new(0, 10, 0, 30),
+        Size = UDim2.new(1, -20, 0, 0),
         BackgroundTransparency = 1,
         Text = options.Content or "",
         TextColor3 = VxzToLib.Theme.TextColor,
         Font = Enum.Font.Gotham,
-        TextSize = 13,  -- Larger text
+        TextSize = 12,
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = Notification
     })
     
-    local textHeight = math.ceil(#(options.Content or "") / 40) * 16  -- More spacing
-    Notification.Size = UDim2.new(0, 300, 0, 50 + textHeight)
-    ContentLabel.Size = UDim2.new(1, -30, 0, textHeight)
+    local textHeight = math.ceil(#(options.Content or "") / 45) * 14
+    Notification.Size = UDim2.new(0, 280, 0, 40 + textHeight)
+    ContentLabel.Size = UDim2.new(1, -20, 0, textHeight)
     
     Notification.Position = UDim2.new(0.5, 0, 0, -Notification.AbsoluteSize.Y)
-    Notification.AnchorPoint = Vector2.new(0.5, 0)
-    Tween(Notification, {Position = UDim2.new(0.5, 0, 0, 15)}, 0.5)
+    Tween(Notification, {Position = UDim2.new(0.5, 0, 0, 10)}, 0.5)
     
     spawn(function()
-        task.wait(options.Time or 4)  -- Longer display time
+        task.wait(options.Time or 3)
         Tween(Notification, {Position = UDim2.new(0.5, 0, 0, -Notification.AbsoluteSize.Y)}, 0.5)
         task.wait(0.5)
         Notification:Destroy()
@@ -544,7 +518,6 @@ function VxzToLib:MakeNotification(options)
     return Notification
 end
 
--- Cleanup
 function VxzToLib:Destroy()
     if self.ScreenGui then self.ScreenGui:Destroy() end
 end
