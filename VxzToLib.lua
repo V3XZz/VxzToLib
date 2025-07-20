@@ -1,5 +1,5 @@
 -- VxzToLib - Modern Hacker UI Library
-local VxzToLib = {Flags = {}, Tabs = {}, Config = {}}
+local VxzToLib = {Flags = {}, Tabs = {}, Config = {}, Theme = {}}
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -7,6 +7,26 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
+
+-- Default theme settings
+VxzToLib.Theme = {
+    BackgroundColor = Color3.fromRGB(40, 40, 45),
+    BorderColor = Color3.fromRGB(150, 80, 220),
+    BorderThickness = 2,
+    TextColor = Color3.fromRGB(220, 180, 255),
+    AccentColor = Color3.fromRGB(180, 80, 255),
+    ButtonColor = Color3.fromRGB(50, 50, 55),
+    ButtonHoverColor = Color3.fromRGB(65, 65, 70),
+    ButtonClickColor = Color3.fromRGB(100, 50, 180),
+    TabColor = Color3.fromRGB(45, 45, 50),
+    TabSelectedColor = Color3.fromRGB(80, 40, 120),
+    ToggleOnColor = Color3.fromRGB(100, 50, 180),
+    ToggleOffColor = Color3.fromRGB(65, 65, 70),
+    TitleBarColor = Color3.fromRGB(45, 45, 50),
+    SectionColor = Color3.fromRGB(100, 50, 150),
+    NotificationColor = Color3.fromRGB(40, 40, 45),
+    Font = Enum.Font.GothamMedium
+}
 
 local function Tween(instance, props, duration, style, direction)
     style = style or Enum.EasingStyle.Quint
@@ -29,8 +49,21 @@ local function Create(class, props)
     return instance
 end
 
+function VxzToLib:SetTheme(theme)
+    for key, value in pairs(theme) do
+        if self.Theme[key] ~= nil then
+            self.Theme[key] = value
+        end
+    end
+end
+
 function VxzToLib:MakeWindow(options)
     if self.ScreenGui then self.ScreenGui:Destroy() end
+    
+    -- Apply custom theme if provided
+    if options.Theme then
+        self:SetTheme(options.Theme)
+    end
     
     self.Config = {
         Name = options.Name or "VxzTo Library",
@@ -57,7 +90,7 @@ function VxzToLib:MakeWindow(options)
             Size = UDim2.new(0, 0, 0, 0),
             BackgroundTransparency = 1,
             Image = self.Config.IntroIcon,
-            ImageColor3 = Color3.fromRGB(180, 80, 255),
+            ImageColor3 = self.Theme.AccentColor,
             Parent = self.ScreenGui
         })
         
@@ -67,7 +100,7 @@ function VxzToLib:MakeWindow(options)
             Size = UDim2.new(0, 0, 0, 0),
             BackgroundTransparency = 1,
             Text = self.Config.IntroText,
-            TextColor3 = Color3.fromRGB(180, 80, 255),
+            TextColor3 = self.Theme.AccentColor,
             Font = Enum.Font.GothamBold,
             TextSize = 24,
             Parent = self.ScreenGui
@@ -90,7 +123,7 @@ function VxzToLib:MakeWindow(options)
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(0.5, 0, 0.5, 0),
         Size = UDim2.new(0, 600, 0, 400),
-        BackgroundColor3 = Color3.fromRGB(30, 30, 35),
+        BackgroundColor3 = self.Theme.BackgroundColor,
         BackgroundTransparency = 0.15,
         BorderSizePixel = 0,
         Parent = self.ScreenGui
@@ -98,17 +131,20 @@ function VxzToLib:MakeWindow(options)
     
     Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = self.Window})
     
+    -- Main window border
     local Border = Create("Frame", {
-        Size = UDim2.new(1, 4, 1, 4),
-        Position = UDim2.new(0, -2, 0, -2),
-        BackgroundColor3 = Color3.fromRGB(120, 50, 200),
-        BackgroundTransparency = 0.8,
+        Size = UDim2.new(1, self.Theme.BorderThickness*2, 1, self.Theme.BorderThickness*2),
+        Position = UDim2.new(0, -self.Theme.BorderThickness, 0, -self.Theme.BorderThickness),
+        BackgroundColor3 = self.Theme.BorderColor,
+        BackgroundTransparency = 0.2,
         BorderSizePixel = 0,
+        ZIndex = 0,
         Parent = self.Window
     })
     
     Create("UICorner", {CornerRadius = UDim.new(0, 16), Parent = Border})
     
+    -- Glass effect
     local Glass = Create("Frame", {
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 0.95,
@@ -116,9 +152,10 @@ function VxzToLib:MakeWindow(options)
         Parent = self.Window
     })
     
+    -- Title bar with border
     local TitleBar = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 36),
-        BackgroundColor3 = Color3.fromRGB(45, 45, 50),
+        BackgroundColor3 = self.Theme.TitleBarColor,
         BackgroundTransparency = 0.2,
         BorderSizePixel = 0,
         Parent = self.Window
@@ -132,7 +169,7 @@ function VxzToLib:MakeWindow(options)
         Size = UDim2.new(0.7, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = self.Config.Name,
-        TextColor3 = Color3.fromRGB(200, 150, 255),
+        TextColor3 = self.Theme.TextColor,
         Font = Enum.Font.GothamBold,
         TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -153,7 +190,7 @@ function VxzToLib:MakeWindow(options)
         Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
         Image = "rbxassetid://6031094678",
-        ImageColor3 = Color3.fromRGB(180, 80, 255),
+        ImageColor3 = self.Theme.AccentColor,
         Parent = Controls
     })
     
@@ -163,7 +200,7 @@ function VxzToLib:MakeWindow(options)
         Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
         Image = "rbxassetid://6031094667",
-        ImageColor3 = Color3.fromRGB(180, 80, 255),
+        ImageColor3 = self.Theme.AccentColor,
         Parent = Controls
     })
     
@@ -172,7 +209,7 @@ function VxzToLib:MakeWindow(options)
         Position = UDim2.new(0, 0, 0, 40),
         BackgroundTransparency = 1,
         ScrollBarThickness = 4,
-        ScrollBarImageColor3 = Color3.fromRGB(120, 50, 200),
+        ScrollBarImageColor3 = self.Theme.BorderColor,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         Parent = self.Window
     })
@@ -195,7 +232,7 @@ function VxzToLib:MakeWindow(options)
         Position = UDim2.new(0, 130, 0, 90),
         BackgroundTransparency = 1,
         ScrollBarThickness = 4,
-        ScrollBarImageColor3 = Color3.fromRGB(120, 50, 200),
+        ScrollBarImageColor3 = self.Theme.BorderColor,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         Parent = self.Window
     })
@@ -219,13 +256,13 @@ function VxzToLib:MakeWindow(options)
     
     TabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         self.TabScroller.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
-    end)
+    end))
     
     self.UserPanel = Create("Frame", {
         AnchorPoint = Vector2.new(1, 1),
         Position = UDim2.new(1, -10, 1, -10),
         Size = UDim2.new(0, 200, 0, 30),
-        BackgroundColor3 = Color3.fromRGB(45, 45, 50),
+        BackgroundColor3 = self.Theme.TitleBarColor,
         BackgroundTransparency = 0.3,
         Parent = self.Window
     })
@@ -238,7 +275,7 @@ function VxzToLib:MakeWindow(options)
         Size = UDim2.new(0.8, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = LocalPlayer.Name,
-        TextColor3 = Color3.fromRGB(200, 150, 255),
+        TextColor3 = self.Theme.TextColor,
         Font = Enum.Font.Gotham,
         TextSize = 12,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -318,12 +355,12 @@ end
 function VxzToLib:MakeTab(options)
     local TabButton = Create("TextButton", {
         Size = UDim2.new(0.9, 0, 0, 40),
-        BackgroundColor3 = Color3.fromRGB(45, 45, 50),
+        BackgroundColor3 = self.Theme.TabColor,
         BackgroundTransparency = 0.5,
         BorderSizePixel = 0,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(200, 150, 255),
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = self.Theme.TextColor,
+        Font = self.Theme.Font,
         TextSize = 13,
         Parent = self.TabContainer
     })
@@ -349,21 +386,25 @@ function VxzToLib:MakeTab(options)
     TabButton.MouseButton1Click:Connect(function()
         for _, tab in pairs(self.Tabs) do
             tab.Content.Visible = false
-            Tween(tab.Button, {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}, 0.2)
+            Tween(tab.Button, {BackgroundColor3 = self.Theme.TabColor}, 0.2)
         end
         TabContent.Visible = true
-        Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(80, 40, 120)}, 0.2)
+        Tween(TabButton, {BackgroundColor3 = self.Theme.TabSelectedColor}, 0.2)
     end)
     
     TabButton.MouseEnter:Connect(function()
         if not TabContent.Visible then
-            Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(55, 55, 60)}, 0.2)
+            Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(
+                self.Theme.TabColor.R * 1.2,
+                self.Theme.TabColor.G * 1.2,
+                self.Theme.TabColor.B * 1.2
+            )}, 0.2)
         end
     end)
     
     TabButton.MouseLeave:Connect(function()
         if not TabContent.Visible then
-            Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}, 0.2)
+            Tween(TabButton, {BackgroundColor3 = self.Theme.TabColor}, 0.2)
         end
     end)
     
@@ -379,7 +420,7 @@ function VxzToLib:MakeTab(options)
     
     if #self.Tabs == 1 then
         TabContent.Visible = true
-        Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(80, 40, 120)}, 0.2)
+        Tween(TabButton, {BackgroundColor3 = self.Theme.TabSelectedColor}, 0.2)
     end
     
     return tabObj
@@ -404,7 +445,7 @@ function VxzToLib.AddSection(parent, options)
         Size = UDim2.new(0.8, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(180, 80, 255),
+        TextColor3 = VxzToLib.Theme.AccentColor,
         Font = Enum.Font.GothamBold,
         TextSize = 14,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -415,7 +456,7 @@ function VxzToLib.AddSection(parent, options)
         AnchorPoint = Vector2.new(0, 0.5),
         Position = UDim2.new(0, 0, 1, 0),
         Size = UDim2.new(1, 0, 0, 1),
-        BackgroundColor3 = Color3.fromRGB(100, 50, 150),
+        BackgroundColor3 = VxzToLib.Theme.SectionColor,
         BackgroundTransparency = 0.5,
         BorderSizePixel = 0,
         Parent = SectionHeader
@@ -454,12 +495,12 @@ end
 function VxzToLib.AddButton(parent, options)
     local Button = Create("TextButton", {
         Size = UDim2.new(1, 0, 0, 36),
-        BackgroundColor3 = Color3.fromRGB(50, 50, 55),
+        BackgroundColor3 = VxzToLib.Theme.ButtonColor,
         BackgroundTransparency = 0.5,
         BorderSizePixel = 0,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(220, 180, 255),
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = VxzToLib.Theme.TextColor,
+        Font = VxzToLib.Theme.Font,
         TextSize = 14,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = parent
@@ -467,22 +508,22 @@ function VxzToLib.AddButton(parent, options)
     
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Button})
     
-    -- Add hand cursor
+    -- Add hand cursor effect
     Button.MouseEnter:Connect(function()
-        Tween(Button, {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}, 0.2)
+        Tween(Button, {BackgroundColor3 = VxzToLib.Theme.ButtonHoverColor}, 0.2)
         Button.Text = "> " .. options.Name
     end)
     
     Button.MouseLeave:Connect(function()
-        Tween(Button, {BackgroundColor3 = Color3.fromRGB(50, 50, 55)}, 0.2)
+        Tween(Button, {BackgroundColor3 = VxzToLib.Theme.ButtonColor}, 0.2)
         Button.Text = options.Name
     end)
     
     Button.MouseButton1Click:Connect(function()
         if options.Callback then 
-            Tween(Button, {BackgroundColor3 = Color3.fromRGB(100, 50, 180)}, 0.1)
+            Tween(Button, {BackgroundColor3 = VxzToLib.Theme.ButtonClickColor}, 0.1)
             task.wait(0.1)
-            Tween(Button, {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}, 0.1)
+            Tween(Button, {BackgroundColor3 = VxzToLib.Theme.ButtonHoverColor}, 0.1)
             options.Callback() 
         end
     end)
@@ -491,10 +532,12 @@ function VxzToLib.AddButton(parent, options)
 end
 
 function VxzToLib.AddToggle(parent, options)
-    local ToggleFrame = Create("Frame", {
+    local ToggleFrame = Create("TextButton", {
         Size = UDim2.new(1, 0, 0, 36),
-        BackgroundColor3 = Color3.fromRGB(50, 50, 55),
+        BackgroundColor3 = VxzToLib.Theme.ButtonColor,
         BackgroundTransparency = 0.5,
+        Text = "",
+        AutoButtonColor = false,
         Parent = parent
     })
     
@@ -506,8 +549,8 @@ function VxzToLib.AddToggle(parent, options)
         Size = UDim2.new(0.7, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(220, 180, 255),
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = VxzToLib.Theme.TextColor,
+        Font = VxzToLib.Theme.Font,
         TextSize = 14,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = ToggleFrame
@@ -517,9 +560,10 @@ function VxzToLib.AddToggle(parent, options)
         AnchorPoint = Vector2.new(1, 0.5),
         Position = UDim2.new(1, -10, 0.5, 0),
         Size = UDim2.new(0, 50, 0, 26),
-        BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(65, 65, 70),
+        BackgroundColor3 = options.Default and VxzToLib.Theme.ToggleOnColor or VxzToLib.Theme.ToggleOffColor,
         BorderSizePixel = 0,
         Text = "",
+        AutoButtonColor = false,
         Parent = ToggleFrame
     })
     
@@ -538,13 +582,26 @@ function VxzToLib.AddToggle(parent, options)
     
     -- Add hand cursor effect
     ToggleFrame.MouseEnter:Connect(function()
-        Tween(ToggleFrame, {BackgroundColor3 = Color3.fromRGB(55, 55, 60)}, 0.2)
-        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(120, 70, 200) or Color3.fromRGB(75, 75, 80)}, 0.2)
-    end)
+        Tween(ToggleFrame, {BackgroundColor3 = VxzToLib.Theme.ButtonHoverColor}, 0.2)
+        Tween(ToggleButton, {BackgroundColor3 = options.Default and 
+            Color3.fromRGB(
+                VxzToLib.Theme.ToggleOnColor.R * 1.2,
+                VxzToLib.Theme.ToggleOnColor.G * 1.2,
+                VxzToLib.Theme.ToggleOnColor.B * 1.2
+            ) or 
+            Color3.fromRGB(
+                VxzToLib.Theme.ToggleOffColor.R * 1.2,
+                VxzToLib.Theme.ToggleOffColor.G * 1.2,
+                VxzToLib.Theme.ToggleOffColor.B * 1.2
+            )
+        }, 0.2)
+    end))
     
     ToggleFrame.MouseLeave:Connect(function()
-        Tween(ToggleFrame, {BackgroundColor3 = Color3.fromRGB(50, 50, 55)}, 0.2)
-        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(65, 65, 70)}, 0.2)
+        Tween(ToggleFrame, {BackgroundColor3 = VxzToLib.Theme.ButtonColor}, 0.2)
+        Tween(ToggleButton, {BackgroundColor3 = options.Default and 
+            VxzToLib.Theme.ToggleOnColor or VxzToLib.Theme.ToggleOffColor
+        }, 0.2)
     end)
     
     local toggleObj = {
@@ -552,7 +609,7 @@ function VxzToLib.AddToggle(parent, options)
         Set = function(self, value)
             self.Value = value
             Tween(ToggleButton, {
-                BackgroundColor3 = value and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(65, 65, 70)
+                BackgroundColor3 = value and VxzToLib.Theme.ToggleOnColor or VxzToLib.Theme.ToggleOffColor
             }, 0.2)
             
             Tween(ToggleCircle, {
@@ -563,6 +620,7 @@ function VxzToLib.AddToggle(parent, options)
         end
     }
     
+    -- Connect to the button events
     ToggleButton.MouseButton1Click:Connect(function()
         toggleObj:Set(not toggleObj.Value)
     end)
@@ -579,7 +637,7 @@ end
 function VxzToLib:MakeNotification(options)
     local Notification = Create("Frame", {
         Size = UDim2.new(0, 280, 0, 0),
-        BackgroundColor3 = Color3.fromRGB(40, 40, 45),
+        BackgroundColor3 = VxzToLib.Theme.NotificationColor,
         BackgroundTransparency = 0.1,
         BorderSizePixel = 0,
         LayoutOrder = 999,
@@ -590,8 +648,8 @@ function VxzToLib:MakeNotification(options)
     
     Create("UIStroke", {
         Parent = Notification,
-        Color = Color3.fromRGB(150, 80, 220),
-        Thickness = 1,
+        Color = VxzToLib.Theme.BorderColor,
+        Thickness = VxzToLib.Theme.BorderThickness,
         Transparency = 0.3
     })
     
@@ -601,7 +659,7 @@ function VxzToLib:MakeNotification(options)
         Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
         Image = options.Image or "rbxassetid://6031094678",
-        ImageColor3 = Color3.fromRGB(180, 100, 255),
+        ImageColor3 = VxzToLib.Theme.AccentColor,
         Parent = Notification
     })
     
@@ -611,7 +669,7 @@ function VxzToLib:MakeNotification(options)
         Size = UDim2.new(1, -45, 0, 20),
         BackgroundTransparency = 1,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(220, 180, 255),
+        TextColor3 = VxzToLib.Theme.TextColor,
         Font = Enum.Font.GothamBold,
         TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -624,7 +682,7 @@ function VxzToLib:MakeNotification(options)
         Size = UDim2.new(1, -20, 0, 0),
         BackgroundTransparency = 1,
         Text = options.Content,
-        TextColor3 = Color3.fromRGB(200, 170, 255),
+        TextColor3 = VxzToLib.Theme.TextColor,
         Font = Enum.Font.Gotham,
         TextSize = 12,
         TextWrapped = true,
