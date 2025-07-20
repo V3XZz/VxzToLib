@@ -1,4 +1,4 @@
-
+-- VxzToLib - Modern Hacker UI Library
 local VxzToLib = {Flags = {}, Tabs = {}, Config = {}}
 
 local TweenService = game:GetService("TweenService")
@@ -124,7 +124,7 @@ function VxzToLib:MakeWindow(options)
         Parent = self.Window
     })
     
-    Create("UICorner", {CornerRadius = UDim.new(0, 12), Corner = Enum.Corner.TopLeft + Enum.Corner.TopRight, Parent = TitleBar})
+    Create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = TitleBar})
     
     Create("TextLabel", {
         AnchorPoint = Vector2.new(0, 0.5),
