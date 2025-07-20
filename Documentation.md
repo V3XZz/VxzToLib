@@ -26,7 +26,7 @@ This documentation is for the stable release of VxzToLib, a modern UI library wi
 
 ## Booting the Library
 ```lua
-local VxzToLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/yourusername/VxzToLib/main/source.lua'))()
+local VxzToLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/V3XZz/VxzToLib/refs/heads/main/VxzToLib.lua'))()
 ```
 
 ## Creating a Window
@@ -374,7 +374,7 @@ VxzToLib:Destroy()
 ## Example Script
 ```Lua
 -- Load the library (replace with your actual URL)
-local VxzToLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/yourusername/VxzToLib/main/source.lua'))()
+local VxzToLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/V3XZz/VxzToLib/refs/heads/main/VxzToLib.lua'))()
 
 -- Create the main window
 local Window = VxzToLib:MakeWindow({
