@@ -256,7 +256,7 @@ function VxzToLib:MakeWindow(options)
     
     TabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         self.TabScroller.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
-    end))
+    end)
     
     self.UserPanel = Create("Frame", {
         AnchorPoint = Vector2.new(1, 1),
@@ -394,11 +394,11 @@ function VxzToLib:MakeTab(options)
     
     TabButton.MouseEnter:Connect(function()
         if not TabContent.Visible then
-            Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(
-                self.Theme.TabColor.R * 1.2,
-                self.Theme.TabColor.G * 1.2,
-                self.Theme.TabColor.B * 1.2
-            )}, 0.2)
+            Tween(TabButton, {BackgroundColor3 = Color3.new(
+                math.min(self.Theme.TabColor.R * 1.2, 1),
+                math.min(self.Theme.TabColor.G * 1.2, 1),
+                math.min(self.Theme.TabColor.B * 1.2, 1)
+            }, 0.2)
         end
     end)
     
@@ -584,18 +584,18 @@ function VxzToLib.AddToggle(parent, options)
     ToggleFrame.MouseEnter:Connect(function()
         Tween(ToggleFrame, {BackgroundColor3 = VxzToLib.Theme.ButtonHoverColor}, 0.2)
         Tween(ToggleButton, {BackgroundColor3 = options.Default and 
-            Color3.fromRGB(
-                VxzToLib.Theme.ToggleOnColor.R * 1.2,
-                VxzToLib.Theme.ToggleOnColor.G * 1.2,
-                VxzToLib.Theme.ToggleOnColor.B * 1.2
+            Color3.new(
+                math.min(VxzToLib.Theme.ToggleOnColor.R * 1.2, 1),
+                math.min(VxzToLib.Theme.ToggleOnColor.G * 1.2, 1),
+                math.min(VxzToLib.Theme.ToggleOnColor.B * 1.2, 1)
             ) or 
-            Color3.fromRGB(
-                VxzToLib.Theme.ToggleOffColor.R * 1.2,
-                VxzToLib.Theme.ToggleOffColor.G * 1.2,
-                VxzToLib.Theme.ToggleOffColor.B * 1.2
+            Color3.new(
+                math.min(VxzToLib.Theme.ToggleOffColor.R * 1.2, 1),
+                math.min(VxzToLib.Theme.ToggleOffColor.G * 1.2, 1),
+                math.min(VxzToLib.Theme.ToggleOffColor.B * 1.2, 1)
             )
         }, 0.2)
-    end))
+    end)
     
     ToggleFrame.MouseLeave:Connect(function()
         Tween(ToggleFrame, {BackgroundColor3 = VxzToLib.Theme.ButtonColor}, 0.2)
