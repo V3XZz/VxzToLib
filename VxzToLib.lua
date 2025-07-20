@@ -1,10 +1,18 @@
+
 local VxzToLib = {Flags = {}, Tabs = {}, Config = {}}
+
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 
 local function Tween(instance, props, duration, style, direction)
     style = style or Enum.EasingStyle.Quint
     direction = direction or Enum.EasingDirection.Out
     local tweenInfo = TweenInfo.new(duration, style, direction)
-    local tween = game:GetService("TweenService"):Create(instance, tweenInfo, props)
+    local tween = TweenService:Create(instance, tweenInfo, props)
     tween:Play()
     return tween
 end
@@ -12,8 +20,11 @@ end
 local function Create(class, props)
     local instance = Instance.new(class)
     for prop, value in pairs(props) do
-        if prop == "Parent" then instance.Parent = value
-        else instance[prop] = value end
+        if prop == "Parent" then 
+            instance.Parent = value
+        else
+            instance[prop] = value
+        end
     end
     return instance
 end
@@ -40,148 +51,194 @@ function VxzToLib:MakeWindow(options)
     })
     
     if self.Config.IntroEnabled then
-        local IntroFrame = Create("Frame", {
-            Size = UDim2.new(1, 0, 1, 0),
-            BackgroundColor3 = Color3.fromRGB(10, 5, 15),
+        local IntroIcon = Create("ImageLabel", {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.new(0.5, 0, 0.4, 0),
+            Size = UDim2.new(0, 0, 0, 0),
+            BackgroundTransparency = 1,
+            Image = self.Config.IntroIcon,
+            ImageColor3 = Color3.fromRGB(180, 80, 255),
             Parent = self.ScreenGui
         })
         
-        Create("ImageLabel", {
-            Size = UDim2.new(0, 100, 0, 100),
-            Position = UDim2.new(0.5, -50, 0.4, -50),
-            BackgroundTransparency = 1,
-            Image = self.Config.IntroIcon,
-            Parent = IntroFrame
-        })
-        
-        Create("TextLabel", {
-            Size = UDim2.new(1, 0, 0, 40),
-            Position = UDim2.new(0, 0, 0.6, 0),
+        local IntroText = Create("TextLabel", {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.new(0.5, 0, 0.6, 0),
+            Size = UDim2.new(0, 0, 0, 0),
             BackgroundTransparency = 1,
             Text = self.Config.IntroText,
             TextColor3 = Color3.fromRGB(180, 80, 255),
             Font = Enum.Font.GothamBold,
-            TextSize = 20,
-            Parent = IntroFrame
+            TextSize = 24,
+            Parent = self.ScreenGui
         })
         
-        wait(2)
-        Tween(IntroFrame, {BackgroundTransparency = 1}, 0.5)
+        Tween(IntroIcon, {Size = UDim2.new(0, 80, 0, 80), Rotation = 360}, 0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        wait(0.3)
+        Tween(IntroText, {Size = UDim2.new(0, 300, 0, 40)}, 0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+        
+        wait(1.5)
+        
+        Tween(IntroIcon, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.3, 0)}, 0.5)
+        Tween(IntroText, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.7, 0)}, 0.5)
         wait(0.5)
-        IntroFrame:Destroy()
+        IntroIcon:Destroy()
+        IntroText:Destroy()
     end
     
     self.Window = Create("Frame", {
-        Size = UDim2.new(0, 500, 0, 400),
-        Position = UDim2.new(0.5, -250, 0.5, -200),
-        BackgroundColor3 = Color3.fromRGB(20, 10, 30),
-        BorderColor3 = Color3.fromRGB(80, 0, 120),
-        BorderSizePixel = 1,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(0, 600, 0, 400),
+        BackgroundColor3 = Color3.fromRGB(30, 30, 35),
+        BackgroundTransparency = 0.15,
+        BorderSizePixel = 0,
         Parent = self.ScreenGui
     })
     
-    Create("ImageLabel", {
-        Size = UDim2.new(1, 12, 1, 12),
-        Position = UDim2.new(0, -6, 0, -6),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://4996891970",
-        ImageColor3 = Color3.fromRGB(120, 0, 200),
-        ScaleType = Enum.ScaleType.Slice,
-        SliceCenter = Rect.new(49, 49, 450, 450),
-        Parent = self.Window
-    })
+    Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = self.Window})
     
-    local TitleBar = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 30),
-        BackgroundColor3 = Color3.fromRGB(30, 15, 45),
+    local Border = Create("Frame", {
+        Size = UDim2.new(1, 4, 1, 4),
+        Position = UDim2.new(0, -2, 0, -2),
+        BackgroundColor3 = Color3.fromRGB(120, 50, 200),
+        BackgroundTransparency = 0.8,
         BorderSizePixel = 0,
         Parent = self.Window
     })
     
+    Create("UICorner", {CornerRadius = UDim.new(0, 16), Parent = Border})
+    
+    local Glass = Create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 0.95,
+        BorderSizePixel = 0,
+        Parent = self.Window
+    })
+    
+    local TitleBar = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 36),
+        BackgroundColor3 = Color3.fromRGB(45, 45, 50),
+        BackgroundTransparency = 0.2,
+        BorderSizePixel = 0,
+        Parent = self.Window
+    })
+    
+    Create("UICorner", {CornerRadius = UDim.new(0, 12), Corner = Enum.Corner.TopLeft + Enum.Corner.TopRight, Parent = TitleBar})
+    
     Create("TextLabel", {
-        Size = UDim2.new(0.7, 0, 1, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 15, 0.5, 0),
+        Size = UDim2.new(0.7, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = self.Config.Name,
-        TextColor3 = Color3.fromRGB(180, 80, 255),
+        TextColor3 = Color3.fromRGB(200, 150, 255),
         Font = Enum.Font.GothamBold,
-        TextSize = 14,
+        TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = TitleBar
     })
     
     local Controls = Create("Frame", {
-        Size = UDim2.new(0.3, 0, 1, 0),
-        Position = UDim2.new(0.7, 0, 0, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(1, -10, 0.5, 0),
+        Size = UDim2.new(0, 80, 0, 24),
         BackgroundTransparency = 1,
         Parent = TitleBar
     })
     
-    self.MinimizeButton = Create("TextButton", {
-        Size = UDim2.new(0.5, 0, 1, 0),
+    self.MinimizeButton = Create("ImageButton", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.25, 0, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
-        Text = "_",
-        TextColor3 = Color3.fromRGB(180, 80, 255),
-        Font = Enum.Font.GothamBold,
-        TextSize = 18,
+        Image = "rbxassetid://6031094678",
+        ImageColor3 = Color3.fromRGB(180, 80, 255),
         Parent = Controls
     })
     
-    self.CloseButton = Create("TextButton", {
-        Size = UDim2.new(0.5, 0, 1, 0),
-        Position = UDim2.new(0.5, 0, 0, 0),
+    self.CloseButton = Create("ImageButton", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.75, 0, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
-        Text = "X",
-        TextColor3 = Color3.fromRGB(180, 80, 255),
-        Font = Enum.Font.GothamBold,
-        TextSize = 14,
+        Image = "rbxassetid://6031094667",
+        ImageColor3 = Color3.fromRGB(180, 80, 255),
         Parent = Controls
     })
     
-    self.TabContainer = Create("Frame", {
-        Size = UDim2.new(1, -20, 0, 40),
-        Position = UDim2.new(0, 10, 0, 35),
-        BackgroundTransparency = 1,
-        Parent = self.Window
-    })
-    
-    Create("UIListLayout", {
-        Parent = self.TabContainer,
-        FillDirection = Enum.FillDirection.Horizontal,
-        Padding = UDim.new(0, 5)
-    })
-    
-    self.ContentContainer = Create("ScrollingFrame", {
-        Size = UDim2.new(1, -20, 1, -100),
-        Position = UDim2.new(0, 10, 0, 80),
+    self.TabScroller = Create("ScrollingFrame", {
+        Size = UDim2.new(0, 120, 1, -100),
+        Position = UDim2.new(0, 0, 0, 40),
         BackgroundTransparency = 1,
         ScrollBarThickness = 4,
+        ScrollBarImageColor3 = Color3.fromRGB(120, 50, 200),
         CanvasSize = UDim2.new(0, 0, 0, 0),
         Parent = self.Window
     })
     
+    self.TabContainer = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 0),
+        BackgroundTransparency = 1,
+        Parent = self.TabScroller
+    })
+    
+    local TabLayout = Create("UIListLayout", {
+        Parent = self.TabContainer,
+        FillDirection = Enum.FillDirection.Vertical,
+        Padding = UDim.new(0, 8),
+        HorizontalAlignment = Enum.HorizontalAlignment.Center
+    })
+    
+    self.ContentContainer = Create("ScrollingFrame", {
+        Size = UDim2.new(1, -140, 1, -110),
+        Position = UDim2.new(0, 130, 0, 90),
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 4,
+        ScrollBarImageColor3 = Color3.fromRGB(120, 50, 200),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        Parent = self.Window
+    })
+    
+    Create("UIPadding", {
+        PaddingTop = UDim.new(0, 5),
+        PaddingBottom = UDim.new(0, 5),
+        PaddingLeft = UDim.new(0, 5),
+        PaddingRight = UDim.new(0, 5),
+        Parent = self.ContentContainer
+    })
+    
     local ContentLayout = Create("UIListLayout", {
         Parent = self.ContentContainer,
-        Padding = UDim.new(0, 5)
+        Padding = UDim.new(0, 12)
     })
     
     ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         self.ContentContainer.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y)
     end)
     
+    TabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        self.TabScroller.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
+    end)
+    
     self.UserPanel = Create("Frame", {
-        Size = UDim2.new(1, -20, 0, 30),
-        Position = UDim2.new(0, 10, 1, -40),
-        BackgroundColor3 = Color3.fromRGB(30, 15, 45),
-        BorderSizePixel = 0,
+        AnchorPoint = Vector2.new(1, 1),
+        Position = UDim2.new(1, -10, 1, -10),
+        Size = UDim2.new(0, 200, 0, 30),
+        BackgroundColor3 = Color3.fromRGB(45, 45, 50),
+        BackgroundTransparency = 0.3,
         Parent = self.Window
     })
     
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = self.UserPanel})
+    
     self.DisplayName = Create("TextLabel", {
-        Size = UDim2.new(1, -60, 1, 0),
-        Position = UDim2.new(0, 5, 0, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 10, 0.5, 0),
+        Size = UDim2.new(0.8, 0, 0, 24),
         BackgroundTransparency = 1,
-        Text = "Player",
-        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Text = LocalPlayer.Name,
+        TextColor3 = Color3.fromRGB(200, 150, 255),
         Font = Enum.Font.Gotham,
         TextSize = 12,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -189,8 +246,9 @@ function VxzToLib:MakeWindow(options)
     })
     
     self.NotificationContainer = Create("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, 10),
         Size = UDim2.new(0, 300, 0, 0),
-        Position = UDim2.new(0.5, -150, 0, 10),
         BackgroundTransparency = 1,
         ClipsDescendants = true,
         Parent = self.ScreenGui
@@ -221,7 +279,7 @@ function VxzToLib:MakeWindow(options)
         if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
     end)
     
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
+    UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
             self.Window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
@@ -230,7 +288,7 @@ function VxzToLib:MakeWindow(options)
     
     self.CloseButton.MouseButton1Click:Connect(function()
         self.Config.CloseCallback()
-        Tween(self.Window, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
+        Tween(self.Window, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, 0.3)
         wait(0.3)
         self.ScreenGui:Destroy()
     end)
@@ -239,25 +297,20 @@ function VxzToLib:MakeWindow(options)
     self.MinimizeButton.MouseButton1Click:Connect(function()
         minimized = not minimized
         if minimized then
-            Tween(self.Window, {Size = UDim2.new(0, 500, 0, 80)}, 0.3)
+            Tween(self.Window, {Size = UDim2.new(0, 600, 0, 90)}, 0.3)
             self.ContentContainer.Visible = false
-            self.TabContainer.Visible = false
+            self.TabScroller.Visible = false
         else
-            Tween(self.Window, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
+            Tween(self.Window, {Size = UDim2.new(0, 600, 0, 400)}, 0.3)
             self.ContentContainer.Visible = true
-            self.TabContainer.Visible = true
+            self.TabScroller.Visible = true
         end
     end)
     
-    game:GetService("UserInputService").InputBegan:Connect(function(input)
+    UserInputService.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.LeftShift then
             self.ScreenGui.Enabled = not self.ScreenGui.Enabled
         end
-    end)
-    
-    spawn(function()
-        local player = game:GetService("Players").LocalPlayer
-        self.DisplayName.Text = player.DisplayName or player.Name
     end)
     
     return self
@@ -265,15 +318,18 @@ end
 
 function VxzToLib:MakeTab(options)
     local TabButton = Create("TextButton", {
-        Size = UDim2.new(0, 100, 1, 0),
-        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
+        Size = UDim2.new(0.9, 0, 0, 40),
+        BackgroundColor3 = Color3.fromRGB(45, 45, 50),
+        BackgroundTransparency = 0.5,
         BorderSizePixel = 0,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(180, 80, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
+        TextColor3 = Color3.fromRGB(200, 150, 255),
+        Font = Enum.Font.GothamMedium,
+        TextSize = 13,
         Parent = self.TabContainer
     })
+    
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = TabButton})
     
     local TabContent = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 0),
@@ -284,7 +340,7 @@ function VxzToLib:MakeTab(options)
     
     local TabLayout = Create("UIListLayout", {
         Parent = TabContent,
-        Padding = UDim.new(0, 5)
+        Padding = UDim.new(0, 12)
     })
     
     TabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -294,10 +350,22 @@ function VxzToLib:MakeTab(options)
     TabButton.MouseButton1Click:Connect(function()
         for _, tab in pairs(self.Tabs) do
             tab.Content.Visible = false
-            tab.Button.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+            Tween(tab.Button, {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}, 0.2)
         end
         TabContent.Visible = true
-        TabButton.BackgroundColor3 = Color3.fromRGB(60, 30, 90)
+        Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(80, 40, 120)}, 0.2)
+    end)
+    
+    TabButton.MouseEnter:Connect(function()
+        if not TabContent.Visible then
+            Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(55, 55, 60)}, 0.2)
+        end
+    end)
+    
+    TabButton.MouseLeave:Connect(function()
+        if not TabContent.Visible then
+            Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}, 0.2)
+        end
     end)
     
     local tabObj = {
@@ -305,42 +373,14 @@ function VxzToLib:MakeTab(options)
         Content = TabContent,
         AddSection = function(_, options)
             return VxzToLib.AddSection(TabContent, options)
-        end,
-        AddButton = function(_, options)
-            return VxzToLib.AddButton(TabContent, options)
-        end,
-        AddToggle = function(_, options)
-            return VxzToLib.AddToggle(TabContent, options)
-        end,
-        AddSlider = function(_, options)
-            return VxzToLib.AddSlider(TabContent, options)
-        end,
-        AddLabel = function(_, text)
-            return VxzToLib.AddLabel(TabContent, text)
-        end,
-        AddParagraph = function(_, title, content)
-            return VxzToLib.AddParagraph(TabContent, title, content)
-        end,
-        AddTextbox = function(_, options)
-            return VxzToLib.AddTextbox(TabContent, options)
-        end,
-        AddBind = function(_, options)
-            return VxzToLib.AddBind(TabContent, options)
-        end,
-        AddDropdown = function(_, options)
-            return VxzToLib.AddDropdown(TabContent, options)
-        end,
-        AddColorpicker = function(_, options)
-            return VxzToLib.AddColorpicker(TabContent, options)
         end
     }
     
-    self.Tabs = self.Tabs or {}
     table.insert(self.Tabs, tabObj)
     
     if #self.Tabs == 1 then
         TabContent.Visible = true
-        TabButton.BackgroundColor3 = Color3.fromRGB(60, 30, 90)
+        Tween(TabButton, {BackgroundColor3 = Color3.fromRGB(80, 40, 120)}, 0.2)
     end
     
     return tabObj
@@ -348,28 +388,38 @@ end
 
 function VxzToLib.AddSection(parent, options)
     local SectionFrame = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 30),
+        Size = UDim2.new(1, -10, 0, 0),
         BackgroundTransparency = 1,
         Parent = parent
     })
     
-    Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 20),
+    local SectionHeader = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 30),
         BackgroundTransparency = 1,
-        Text = options.Name,
-        TextColor3 = Color3.fromRGB(150, 50, 220),
-        Font = Enum.Font.GothamBold,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
         Parent = SectionFrame
     })
     
+    Create("TextLabel", {
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 0, 0.5, 0),
+        Size = UDim2.new(0.8, 0, 0, 24),
+        BackgroundTransparency = 1,
+        Text = options.Name,
+        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = SectionHeader
+    })
+    
     Create("Frame", {
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 0, 1, 0),
         Size = UDim2.new(1, 0, 0, 1),
-        Position = UDim2.new(0, 0, 0, 22),
-        BackgroundColor3 = Color3.fromRGB(80, 0, 120),
+        BackgroundColor3 = Color3.fromRGB(100, 50, 150),
+        BackgroundTransparency = 0.5,
         BorderSizePixel = 0,
-        Parent = SectionFrame
+        Parent = SectionHeader
     })
     
     local SectionContent = Create("Frame", {
@@ -380,12 +430,12 @@ function VxzToLib.AddSection(parent, options)
     
     local SectionLayout = Create("UIListLayout", {
         Parent = SectionContent,
-        Padding = UDim.new(0, 5)
+        Padding = UDim.new(0, 10)
     })
     
     SectionLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         SectionContent.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y)
-        SectionFrame.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y + 25)
+        SectionFrame.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y + 35)
     end)
     
     local sectionObj = {
@@ -396,27 +446,6 @@ function VxzToLib.AddSection(parent, options)
         end,
         AddToggle = function(_, toggleOptions)
             return VxzToLib.AddToggle(SectionContent, toggleOptions)
-        end,
-        AddSlider = function(_, sliderOptions)
-            return VxzToLib.AddSlider(SectionContent, sliderOptions)
-        end,
-        AddLabel = function(_, text)
-            return VxzToLib.AddLabel(SectionContent, text)
-        end,
-        AddParagraph = function(_, title, content)
-            return VxzToLib.AddParagraph(SectionContent, title, content)
-        end,
-        AddTextbox = function(_, textboxOptions)
-            return VxzToLib.AddTextbox(SectionContent, textboxOptions)
-        end,
-        AddBind = function(_, bindOptions)
-            return VxzToLib.AddBind(SectionContent, bindOptions)
-        end,
-        AddDropdown = function(_, dropdownOptions)
-            return VxzToLib.AddDropdown(SectionContent, dropdownOptions)
-        end,
-        AddColorpicker = function(_, colorpickerOptions)
-            return VxzToLib.AddColorpicker(SectionContent, colorpickerOptions)
         end
     }
     
@@ -425,26 +454,34 @@ end
 
 function VxzToLib.AddButton(parent, options)
     local Button = Create("TextButton", {
-        Size = UDim2.new(1, 0, 0, 30),
-        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
+        Size = UDim2.new(1, 0, 0, 36),
+        BackgroundColor3 = Color3.fromRGB(50, 50, 55),
+        BackgroundTransparency = 0.5,
         BorderSizePixel = 0,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(200, 120, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
+        TextColor3 = Color3.fromRGB(220, 180, 255),
+        Font = Enum.Font.GothamMedium,
+        TextSize = 14,
         Parent = parent
     })
     
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Button})
+    
     Button.MouseEnter:Connect(function()
-        Tween(Button, {BackgroundColor3 = Color3.fromRGB(60, 30, 90)}, 0.2)
+        Tween(Button, {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}, 0.2)
     end)
     
     Button.MouseLeave:Connect(function()
-        Tween(Button, {BackgroundColor3 = Color3.fromRGB(40, 20, 60)}, 0.2)
+        Tween(Button, {BackgroundColor3 = Color3.fromRGB(50, 50, 55)}, 0.2)
     end)
     
     Button.MouseButton1Click:Connect(function()
-        if options.Callback then options.Callback() end
+        if options.Callback then 
+            Tween(Button, {BackgroundColor3 = Color3.fromRGB(100, 50, 180)}, 0.1)
+            wait(0.1)
+            Tween(Button, {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}, 0.1)
+            options.Callback() 
+        end
     end)
     
     return Button
@@ -452,49 +489,65 @@ end
 
 function VxzToLib.AddToggle(parent, options)
     local ToggleFrame = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 30),
+        Size = UDim2.new(1, 0, 0, 36),
         BackgroundTransparency = 1,
         Parent = parent
     })
     
     Create("TextLabel", {
-        Size = UDim2.new(0.7, 0, 1, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 0, 0.5, 0),
+        Size = UDim2.new(0.7, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(200, 120, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
+        TextColor3 = Color3.fromRGB(220, 180, 255),
+        Font = Enum.Font.GothamMedium,
+        TextSize = 14,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = ToggleFrame
     })
     
     local ToggleButton = Create("TextButton", {
-        Size = UDim2.new(0, 50, 0, 25),
-        Position = UDim2.new(0.7, 0, 0.5, -12.5),
-        BackgroundColor3 = options.Default and Color3.fromRGB(80, 0, 150) or Color3.fromRGB(30, 15, 45),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(1, 0, 0.5, 0),
+        Size = UDim2.new(0, 50, 0, 26),
+        BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(50, 50, 55),
         BorderSizePixel = 0,
         Text = "",
         Parent = ToggleFrame
     })
     
+    Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = ToggleButton})
+    
     local ToggleCircle = Create("Frame", {
-        Size = UDim2.new(0, 21, 0, 21),
-        Position = UDim2.new(0, options.Default and 29 or 2, 0.5, -10.5),
-        BackgroundColor3 = Color3.fromRGB(200, 120, 255),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(options.Default and 0.75 or 0.25, 0, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
+        BackgroundColor3 = Color3.fromRGB(240, 200, 255),
         BorderSizePixel = 0,
         Parent = ToggleButton
     })
+    
+    Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = ToggleCircle})
+    
+    ToggleButton.MouseEnter:Connect(function()
+        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(120, 70, 200) or Color3.fromRGB(65, 65, 70)}, 0.2)
+    end)
+    
+    ToggleButton.MouseLeave:Connect(function()
+        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(50, 50, 55)}, 0.2)
+    end)
     
     local toggleObj = {
         Value = options.Default or false,
         Set = function(self, value)
             self.Value = value
             Tween(ToggleButton, {
-                BackgroundColor3 = value and Color3.fromRGB(80, 0, 150) or Color3.fromRGB(30, 15, 45)
+                BackgroundColor3 = value and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(50, 50, 55)
             }, 0.2)
             
             Tween(ToggleCircle, {
-                Position = UDim2.new(0, value and 29 or 2, 0.5, -10.5)
+                Position = UDim2.new(value and 0.75 or 0.25, 0, 0.5, 0)
             }, 0.2)
             
             if options.Callback then options.Callback(value) end
@@ -510,392 +563,55 @@ function VxzToLib.AddToggle(parent, options)
     return toggleObj
 end
 
-function VxzToLib.AddSlider(parent, options)
-    local SliderFrame = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 50),
-        BackgroundTransparency = 1,
-        Parent = parent
-    })
-    
-    Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 20),
-        BackgroundTransparency = 1,
-        Text = options.Name,
-        TextColor3 = Color3.fromRGB(200, 120, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = SliderFrame
-    })
-    
-    local ValueLabel = Create("TextLabel", {
-        Size = UDim2.new(0, 60, 0, 20),
-        Position = UDim2.new(1, -60, 0, 0),
-        BackgroundTransparency = 1,
-        Text = tostring(options.Default),
-        TextColor3 = Color3.fromRGB(180, 80, 255),
-        Font = Enum.Font.GothamBold,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Right,
-        Parent = SliderFrame
-    })
-    
-    local SliderTrack = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 5),
-        Position = UDim2.new(0, 0, 0, 25),
-        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
-        BorderSizePixel = 0,
-        Parent = SliderFrame
-    })
-    
-    local SliderFill = Create("Frame", {
-        Size = UDim2.new(0, 0, 1, 0),
-        BackgroundColor3 = Color3.fromRGB(180, 80, 255),
-        BorderSizePixel = 0,
-        Parent = SliderTrack
-    })
-    
-    local SliderButton = Create("TextButton", {
-        Size = UDim2.new(0, 15, 0, 15),
-        Position = UDim2.new(0, 0, 0.5, -7.5),
-        BackgroundColor3 = Color3.fromRGB(220, 150, 255),
-        BorderSizePixel = 0,
-        Text = "",
-        ZIndex = 2,
-        Parent = SliderTrack
-    })
-    
-    local min = options.Min or 0
-    local max = options.Max or 100
-    local default = math.clamp(options.Default or 50, min, max)
-    local increment = options.Increment or 1
-    local valueName = options.ValueName or ""
-    
-    local function setValue(value)
-        local clamped = math.clamp(value, min, max)
-        local percentage = (clamped - min) / (max - min)
-        
-        SliderFill.Size = UDim2.new(percentage, 0, 1, 0)
-        SliderButton.Position = UDim2.new(percentage, -7.5, 0.5, -7.5)
-        ValueLabel.Text = tostring(clamped) .. (valueName ~= "" and " " .. valueName or "")
-        
-        if options.Callback then options.Callback(clamped) end
-    end
-    
-    local sliderObj = {
-        Value = default,
-        Set = function(self, value) self.Value = value setValue(value) end
-    }
-    
-    setValue(default)
-    
-    local dragging = false
-    SliderButton.MouseButton1Down:Connect(function() dragging = true end)
-    
-    game:GetService("UserInputService").InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
-    
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local mousePos = game:GetService("UserInputService"):GetMouseLocation()
-            local sliderPos = SliderTrack.AbsolutePosition
-            local sliderSize = SliderTrack.AbsoluteSize.X
-            local relativeX = math.clamp(mousePos.X - sliderPos.X, 0, sliderSize)
-            local percentage = relativeX / sliderSize
-            local value = min + (max - min) * percentage
-            value = math.floor(value / increment + 0.5) * increment
-            
-            sliderObj.Value = value
-            setValue(value)
-        end
-    end)
-    
-    if options.Flag then VxzToLib.Flags[options.Flag] = sliderObj end
-    
-    return sliderObj
-end
-
-function VxzToLib.AddLabel(parent, text)
-    local Label = Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 20),
-        BackgroundTransparency = 1,
-        Text = text,
-        TextColor3 = Color3.fromRGB(200, 150, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = parent
-    })
-    
-    local labelObj = {
-        Set = function(self, newText) Label.Text = newText end
-    }
-    
-    return labelObj
-end
-
-function VxzToLib.AddParagraph(parent, title, content)
-    local ParagraphFrame = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 40),
-        BackgroundTransparency = 1,
-        Parent = parent
-    })
-    
-    local TitleLabel = Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 20),
-        BackgroundTransparency = 1,
-        Text = title,
-        TextColor3 = Color3.fromRGB(180, 80, 255),
-        Font = Enum.Font.GothamBold,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = ParagraphFrame
-    })
-    
-    local ContentLabel = Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 20),
-        Position = UDim2.new(0, 0, 0, 20),
-        BackgroundTransparency = 1,
-        Text = content,
-        TextColor3 = Color3.fromRGB(200, 150, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = ParagraphFrame
-    })
-    
-    local paragraphObj = {
-        Set = function(self, newTitle, newContent)
-            TitleLabel.Text = newTitle
-            ContentLabel.Text = newContent
-        end
-    }
-    
-    return paragraphObj
-end
-
-function VxzToLib.AddTextbox(parent, options)
-    local TextboxFrame = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 40),
-        BackgroundTransparency = 1,
-        Parent = parent
-    })
-    
-    Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 20),
-        BackgroundTransparency = 1,
-        Text = options.Name,
-        TextColor3 = Color3.fromRGB(200, 120, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = TextboxFrame
-    })
-    
-    local Textbox = Create("TextBox", {
-        Size = UDim2.new(1, 0, 0, 20),
-        Position = UDim2.new(0, 0, 0, 20),
-        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
-        BorderSizePixel = 0,
-        Text = options.Default or "",
-        TextColor3 = Color3.fromRGB(200, 150, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        Parent = TextboxFrame
-    })
-    
-    Textbox.FocusLost:Connect(function()
-        if options.TextDisappear then Textbox.Text = "" end
-        if options.Callback then options.Callback(Textbox.Text) end
-    end)
-    
-    return Textbox
-end
-
-function VxzToLib.AddBind(parent, options)
-    local BindFrame = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 30),
-        BackgroundTransparency = 1,
-        Parent = parent
-    })
-    
-    Create("TextLabel", {
-        Size = UDim2.new(0.7, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Text = options.Name,
-        TextColor3 = Color3.fromRGB(200, 120, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = BindFrame
-    })
-    
-    local BindButton = Create("TextButton", {
-        Size = UDim2.new(0.3, 0, 1, -10),
-        Position = UDim2.new(0.7, 0, 0, 5),
-        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
-        BorderSizePixel = 0,
-        Text = tostring(options.Default.Name),
-        TextColor3 = Color3.fromRGB(180, 80, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        Parent = BindFrame
-    })
-    
-    local bindObj = {
-        Value = options.Default,
-        Set = function(self, value)
-            self.Value = value
-            BindButton.Text = tostring(value.Name)
-        end
-    }
-    
-    BindButton.MouseButton1Click:Connect(function()
-        BindButton.Text = "..."
-        local input = game:GetService("UserInputService").InputBegan:Wait()
-        if input.UserInputType == Enum.UserInputType.Keyboard then
-            bindObj:Set(input.KeyCode)
-            if options.Callback then options.Callback(input.KeyCode) end
-        end
-    end)
-    
-    if options.Flag then VxzToLib.Flags[options.Flag] = bindObj end
-    
-    return bindObj
-end
-
-function VxzToLib.AddDropdown(parent, options)
-    local DropdownFrame = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 30),
-        BackgroundTransparency = 1,
-        Parent = parent
-    })
-    
-    Create("TextLabel", {
-        Size = UDim2.new(0.7, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Text = options.Name,
-        TextColor3 = Color3.fromRGB(200, 120, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = DropdownFrame
-    })
-    
-    local DropdownButton = Create("TextButton", {
-        Size = UDim2.new(0.3, 0, 1, -10),
-        Position = UDim2.new(0.7, 0, 0, 5),
-        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
-        BorderSizePixel = 0,
-        Text = options.Default or "Select",
-        TextColor3 = Color3.fromRGB(180, 80, 255),
-        Font = Enum.Font.Gotham,
-        TextSize = 12,
-        Parent = DropdownFrame
-    })
-    
-    local DropdownList = Create("Frame", {
-        Size = UDim2.new(0.3, 0, 0, 0),
-        Position = UDim2.new(0.7, 0, 0, 35),
-        BackgroundColor3 = Color3.fromRGB(30, 15, 45),
-        BorderSizePixel = 0,
-        Visible = false,
-        Parent = DropdownFrame
-    })
-    
-    Create("UIListLayout", {
-        Parent = DropdownList,
-        Padding = UDim.new(0, 2)
-    })
-    
-    local dropdownObj = {
-        Value = options.Default,
-        Options = options.Options or {},
-        Refresh = function(self, newOptions, clear)
-            if clear then
-                for _, child in ipairs(DropdownList:GetChildren()) do
-                    if child:IsA("TextButton") then child:Destroy() end
-                end
-            end
-            
-            self.Options = newOptions or self.Options
-            
-            for _, option in ipairs(self.Options) do
-                local OptionButton = Create("TextButton", {
-                    Size = UDim2.new(1, 0, 0, 25),
-                    BackgroundColor3 = Color3.fromRGB(40, 20, 60),
-                    BorderSizePixel = 0,
-                    Text = option,
-                    TextColor3 = Color3.fromRGB(180, 80, 255),
-                    Font = Enum.Font.Gotham,
-                    TextSize = 12,
-                    Parent = DropdownList
-                })
-                
-                OptionButton.MouseButton1Click:Connect(function()
-                    dropdownObj.Value = option
-                    DropdownButton.Text = option
-                    DropdownList.Visible = false
-                    if options.Callback then options.Callback(option) end
-                end)
-            end
-        end,
-        Set = function(self, value)
-            self.Value = value
-            DropdownButton.Text = value
-            if options.Callback then options.Callback(value) end
-        end
-    }
-    
-    dropdownObj:Refresh(options.Options, false)
-    
-    DropdownButton.MouseButton1Click:Connect(function()
-        DropdownList.Visible = not DropdownList.Visible
-        DropdownList.Size = UDim2.new(0.3, 0, 0, #dropdownObj.Options * 27)
-    end)
-    
-    if options.Flag then VxzToLib.Flags[options.Flag] = dropdownObj end
-    
-    return dropdownObj
-end
-
 function VxzToLib:MakeNotification(options)
     local Notification = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 0),
-        BackgroundColor3 = Color3.fromRGB(25, 15, 35),
-        BorderColor3 = Color3.fromRGB(80, 0, 120),
-        BorderSizePixel = 1,
+        Size = UDim2.new(0, 280, 0, 0),
+        BackgroundColor3 = Color3.fromRGB(40, 40, 45),
+        BackgroundTransparency = 0.1,
+        BorderSizePixel = 0,
         LayoutOrder = 999,
         Parent = self.NotificationContainer
     })
     
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Notification})
+    
+    Create("UIStroke", {
+        Parent = Notification,
+        Color = Color3.fromRGB(150, 80, 220),
+        Thickness = 1,
+        Transparency = 0.3
+    })
+    
     Create("ImageLabel", {
-        Size = UDim2.new(0, 40, 0, 40),
-        Position = UDim2.new(0, 5, 0, 5),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 10, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
         BackgroundTransparency = 1,
         Image = options.Image or "rbxassetid://6031094678",
+        ImageColor3 = Color3.fromRGB(180, 100, 255),
         Parent = Notification
     })
     
-    Create("TextLabel", {
-        Size = UDim2.new(1, -50, 0, 25),
-        Position = UDim2.new(0, 45, 0, 5),
+    local TitleLabel = Create("TextLabel", {
+        AnchorPoint = Vector2.new(0, 0),
+        Position = UDim2.new(0, 35, 0, 8),
+        Size = UDim2.new(1, -45, 0, 20),
         BackgroundTransparency = 1,
         Text = options.Name,
-        TextColor3 = Color3.fromRGB(180, 80, 255),
+        TextColor3 = Color3.fromRGB(220, 180, 255),
         Font = Enum.Font.GothamBold,
-        TextSize = 14,
+        TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = Notification
     })
     
     local ContentLabel = Create("TextLabel", {
-        Size = UDim2.new(1, -10, 0, 0),
-        Position = UDim2.new(0, 10, 0, 45),
+        AnchorPoint = Vector2.new(0, 0),
+        Position = UDim2.new(0, 10, 0, 30),
+        Size = UDim2.new(1, -20, 0, 0),
         BackgroundTransparency = 1,
         Text = options.Content,
-        TextColor3 = Color3.fromRGB(200, 150, 255),
+        TextColor3 = Color3.fromRGB(200, 170, 255),
         Font = Enum.Font.Gotham,
         TextSize = 12,
         TextWrapped = true,
@@ -903,16 +619,17 @@ function VxzToLib:MakeNotification(options)
         Parent = Notification
     })
     
-    local textHeight = math.ceil(#options.Content / 30) * 15
-    Notification.Size = UDim2.new(1, 0, 0, 50 + textHeight)
-    ContentLabel.Size = UDim2.new(1, -10, 0, textHeight)
+    local textHeight = math.ceil(#options.Content / 45) * 14
+    Notification.Size = UDim2.new(0, 280, 0, 40 + textHeight)
+    ContentLabel.Size = UDim2.new(1, -20, 0, textHeight)
     
-    Notification.Position = UDim2.new(0.5, -150, 0, -Notification.AbsoluteSize.Y)
-    Tween(Notification, {Position = UDim2.new(0.5, -150, 0, 10)}, 0.5)
+    Notification.Position = UDim2.new(0.5, 0, 0, -Notification.AbsoluteSize.Y)
+    Notification.AnchorPoint = Vector2.new(0.5, 0)
+    Tween(Notification, {Position = UDim2.new(0.5, 0, 0, 10)}, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
     
     spawn(function()
-        wait(options.Time or 5)
-        Tween(Notification, {Position = UDim2.new(0.5, -150, 0, -Notification.AbsoluteSize.Y)}, 0.5)
+        wait(options.Time or 3)
+        Tween(Notification, {Position = UDim2.new(0.5, 0, 0, -Notification.AbsoluteSize.Y)}, 0.5)
         wait(0.5)
         Notification:Destroy()
     end)
