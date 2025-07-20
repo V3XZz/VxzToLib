@@ -74,14 +74,14 @@ function VxzToLib:MakeWindow(options)
         })
         
         Tween(IntroIcon, {Size = UDim2.new(0, 80, 0, 80), Rotation = 360}, 0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-        wait(0.3)
+        task.wait(0.3)
         Tween(IntroText, {Size = UDim2.new(0, 300, 0, 40)}, 0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
         
-        wait(1.5)
+        task.wait(1.5)
         
         Tween(IntroIcon, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.3, 0)}, 0.5)
         Tween(IntroText, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.7, 0)}, 0.5)
-        wait(0.5)
+        task.wait(0.5)
         IntroIcon:Destroy()
         IntroText:Destroy()
     end
@@ -260,39 +260,37 @@ function VxzToLib:MakeWindow(options)
         Padding = UDim.new(0, 10)
     })
     
+    -- Draggable window functionality
     local dragging = false
-    local dragInput, dragStart, startPos
+    local dragStart, startPos
     
     TitleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = self.Window.Position
-            
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
     
-    TitleBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
-    end)
-    
     UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             local delta = input.Position - dragStart
             self.Window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
     
+    -- Close button functionality
     self.CloseButton.MouseButton1Click:Connect(function()
         self.Config.CloseCallback()
         Tween(self.Window, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, 0.3)
-        wait(0.3)
+        task.wait(0.3)
         self.ScreenGui:Destroy()
     end)
     
+    -- Minimize functionality
     local minimized = false
     self.MinimizeButton.MouseButton1Click:Connect(function()
         minimized = not minimized
@@ -307,6 +305,7 @@ function VxzToLib:MakeWindow(options)
         end
     end)
     
+    -- Toggle with LeftShift
     UserInputService.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.LeftShift then
             self.ScreenGui.Enabled = not self.ScreenGui.Enabled
@@ -462,23 +461,27 @@ function VxzToLib.AddButton(parent, options)
         TextColor3 = Color3.fromRGB(220, 180, 255),
         Font = Enum.Font.GothamMedium,
         TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
         Parent = parent
     })
     
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Button})
     
+    -- Add hand cursor
     Button.MouseEnter:Connect(function()
         Tween(Button, {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}, 0.2)
+        Button.Text = "> " .. options.Name
     end)
     
     Button.MouseLeave:Connect(function()
         Tween(Button, {BackgroundColor3 = Color3.fromRGB(50, 50, 55)}, 0.2)
+        Button.Text = options.Name
     end)
     
     Button.MouseButton1Click:Connect(function()
         if options.Callback then 
             Tween(Button, {BackgroundColor3 = Color3.fromRGB(100, 50, 180)}, 0.1)
-            wait(0.1)
+            task.wait(0.1)
             Tween(Button, {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}, 0.1)
             options.Callback() 
         end
@@ -490,13 +493,16 @@ end
 function VxzToLib.AddToggle(parent, options)
     local ToggleFrame = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 36),
-        BackgroundTransparency = 1,
+        BackgroundColor3 = Color3.fromRGB(50, 50, 55),
+        BackgroundTransparency = 0.5,
         Parent = parent
     })
     
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = ToggleFrame})
+    
     Create("TextLabel", {
         AnchorPoint = Vector2.new(0, 0.5),
-        Position = UDim2.new(0, 0, 0.5, 0),
+        Position = UDim2.new(0, 10, 0.5, 0),
         Size = UDim2.new(0.7, 0, 0, 24),
         BackgroundTransparency = 1,
         Text = options.Name,
@@ -509,9 +515,9 @@ function VxzToLib.AddToggle(parent, options)
     
     local ToggleButton = Create("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
-        Position = UDim2.new(1, 0, 0.5, 0),
+        Position = UDim2.new(1, -10, 0.5, 0),
         Size = UDim2.new(0, 50, 0, 26),
-        BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(50, 50, 55),
+        BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(65, 65, 70),
         BorderSizePixel = 0,
         Text = "",
         Parent = ToggleFrame
@@ -530,12 +536,15 @@ function VxzToLib.AddToggle(parent, options)
     
     Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = ToggleCircle})
     
-    ToggleButton.MouseEnter:Connect(function()
-        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(120, 70, 200) or Color3.fromRGB(65, 65, 70)}, 0.2)
+    -- Add hand cursor effect
+    ToggleFrame.MouseEnter:Connect(function()
+        Tween(ToggleFrame, {BackgroundColor3 = Color3.fromRGB(55, 55, 60)}, 0.2)
+        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(120, 70, 200) or Color3.fromRGB(75, 75, 80)}, 0.2)
     end)
     
-    ToggleButton.MouseLeave:Connect(function()
-        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(50, 50, 55)}, 0.2)
+    ToggleFrame.MouseLeave:Connect(function()
+        Tween(ToggleFrame, {BackgroundColor3 = Color3.fromRGB(50, 50, 55)}, 0.2)
+        Tween(ToggleButton, {BackgroundColor3 = options.Default and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(65, 65, 70)}, 0.2)
     end)
     
     local toggleObj = {
@@ -543,7 +552,7 @@ function VxzToLib.AddToggle(parent, options)
         Set = function(self, value)
             self.Value = value
             Tween(ToggleButton, {
-                BackgroundColor3 = value and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(50, 50, 55)
+                BackgroundColor3 = value and Color3.fromRGB(100, 50, 180) or Color3.fromRGB(65, 65, 70)
             }, 0.2)
             
             Tween(ToggleCircle, {
@@ -555,6 +564,10 @@ function VxzToLib.AddToggle(parent, options)
     }
     
     ToggleButton.MouseButton1Click:Connect(function()
+        toggleObj:Set(not toggleObj.Value)
+    end)
+    
+    ToggleFrame.MouseButton1Click:Connect(function()
         toggleObj:Set(not toggleObj.Value)
     end)
     
@@ -628,9 +641,9 @@ function VxzToLib:MakeNotification(options)
     Tween(Notification, {Position = UDim2.new(0.5, 0, 0, 10)}, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
     
     spawn(function()
-        wait(options.Time or 3)
+        task.wait(options.Time or 3)
         Tween(Notification, {Position = UDim2.new(0.5, 0, 0, -Notification.AbsoluteSize.Y)}, 0.5)
-        wait(0.5)
+        task.wait(0.5)
         Notification:Destroy()
     end)
     
