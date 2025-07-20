@@ -1,6 +1,4 @@
-local VxzToLib = {}
-VxzToLib.__index = VxzToLib
-
+local VxzToLib = {Flags = {}, Tabs = {}, Config = {}}
 
 local function Tween(instance, props, duration, style, direction)
     style = style or Enum.EasingStyle.Quint
@@ -14,58 +12,14 @@ end
 local function Create(class, props)
     local instance = Instance.new(class)
     for prop, value in pairs(props) do
-        if prop == "Parent" then
-            instance.Parent = value
-        else
-            instance[prop] = value
-        end
+        if prop == "Parent" then instance.Parent = value
+        else instance[prop] = value end
     end
     return instance
 end
 
-local function LoadAssets()
-    local assets = {
-        Close = "rbxassetid://6031094678",
-        Minimize = "rbxassetid://6031094678",
-        ArrowDown = "rbxassetid://6031094678",
-        ArrowUp = "rbxassetid://6031094678",
-        ToggleOn = "rbxassetid://6031094678",
-        ToggleOff = "rbxassetid://6031094678",
-        SliderHandle = "rbxassetid://6031094678",
-        DropdownIcon = "rbxassetid://6031094678",
-        Notification = "rbxassetid://6031094678"
-    }
-    
-    
-    pcall(function()
-        local response = game:HttpGet("https://raw.githubusercontent.com/V3XZz/Orion-Lib-Moded/main/assetvrion.json")
-        local jsonAssets = game:GetService("HttpService"):JSONDecode(response)
-        for k, v in pairs(jsonAssets) do
-            assets[k] = v
-        end
-    end)
-    
-    return assets
-end
-
-local Assets = LoadAssets()
-
-
-function VxzToLib.new()
-    local self = setmetatable({}, VxzToLib)
-    self.Flags = {}
-    self.Configs = {}
-    self.CurrentConfig = {}
-    self.Elements = {}
-    self.NotificationQueue = {}
-    self.ActiveNotifications = 0
-    return self
-end
-
 function VxzToLib:MakeWindow(options)
-    if self.ScreenGui then
-        self.ScreenGui:Destroy()
-    end
+    if self.ScreenGui then self.ScreenGui:Destroy() end
     
     self.Config = {
         Name = options.Name or "VxzTo Library",
@@ -73,18 +27,17 @@ function VxzToLib:MakeWindow(options)
         SaveConfig = options.SaveConfig or false,
         ConfigFolder = options.ConfigFolder or "VxzToConfig",
         IntroEnabled = options.IntroEnabled or false,
-        IntroText = options.IntroText or "Loading VxzTo Library...",
-        IntroIcon = options.IntroIcon or Assets.Notification,
-        Icon = options.Icon or Assets.Notification,
+        IntroText = options.IntroText or "Loading...",
+        IntroIcon = options.IntroIcon or "rbxassetid://6031094678",
+        Icon = options.Icon or "rbxassetid://6031094678",
         CloseCallback = options.CloseCallback or function() end
     }
     
     self.ScreenGui = Create("ScreenGui", {
-        Name = "VxzToUI",
         ResetOnSpawn = false,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        Parent = game:GetService("CoreGui")
     })
-    
     
     if self.Config.IntroEnabled then
         local IntroFrame = Create("Frame", {
@@ -118,9 +71,7 @@ function VxzToLib:MakeWindow(options)
         IntroFrame:Destroy()
     end
     
-    
     self.Window = Create("Frame", {
-        Name = "Window",
         Size = UDim2.new(0, 500, 0, 400),
         Position = UDim2.new(0.5, -250, 0.5, -200),
         BackgroundColor3 = Color3.fromRGB(20, 10, 30),
@@ -128,7 +79,6 @@ function VxzToLib:MakeWindow(options)
         BorderSizePixel = 1,
         Parent = self.ScreenGui
     })
-    
     
     Create("ImageLabel", {
         Size = UDim2.new(1, 12, 1, 12),
@@ -141,14 +91,12 @@ function VxzToLib:MakeWindow(options)
         Parent = self.Window
     })
     
-    
     local TitleBar = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 30),
         BackgroundColor3 = Color3.fromRGB(30, 15, 45),
         BorderSizePixel = 0,
         Parent = self.Window
     })
-    
     
     Create("TextLabel", {
         Size = UDim2.new(0.7, 0, 1, 0),
@@ -161,7 +109,6 @@ function VxzToLib:MakeWindow(options)
         Parent = TitleBar
     })
     
-    
     local Controls = Create("Frame", {
         Size = UDim2.new(0.3, 0, 1, 0),
         Position = UDim2.new(0.7, 0, 0, 0),
@@ -169,25 +116,26 @@ function VxzToLib:MakeWindow(options)
         Parent = TitleBar
     })
     
-    
-    self.MinimizeButton = Create("ImageButton", {
+    self.MinimizeButton = Create("TextButton", {
         Size = UDim2.new(0.5, 0, 1, 0),
         BackgroundTransparency = 1,
-        Image = Assets.Minimize,
-        ImageColor3 = Color3.fromRGB(180, 80, 255),
+        Text = "_",
+        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
         Parent = Controls
     })
     
-    
-    self.CloseButton = Create("ImageButton", {
+    self.CloseButton = Create("TextButton", {
         Size = UDim2.new(0.5, 0, 1, 0),
         Position = UDim2.new(0.5, 0, 0, 0),
         BackgroundTransparency = 1,
-        Image = Assets.Close,
-        ImageColor3 = Color3.fromRGB(180, 80, 255),
+        Text = "X",
+        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
         Parent = Controls
     })
-    
     
     self.TabContainer = Create("Frame", {
         Size = UDim2.new(1, -20, 0, 40),
@@ -196,13 +144,11 @@ function VxzToLib:MakeWindow(options)
         Parent = self.Window
     })
     
-    
     Create("UIListLayout", {
         Parent = self.TabContainer,
         FillDirection = Enum.FillDirection.Horizontal,
         Padding = UDim.new(0, 5)
     })
-    
     
     self.ContentContainer = Create("ScrollingFrame", {
         Size = UDim2.new(1, -20, 1, -100),
@@ -213,7 +159,6 @@ function VxzToLib:MakeWindow(options)
         Parent = self.Window
     })
     
-    
     local ContentLayout = Create("UIListLayout", {
         Parent = self.ContentContainer,
         Padding = UDim.new(0, 5)
@@ -223,7 +168,6 @@ function VxzToLib:MakeWindow(options)
         self.ContentContainer.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y)
     end)
     
-    
     self.UserPanel = Create("Frame", {
         Size = UDim2.new(1, -20, 0, 30),
         Position = UDim2.new(0, 10, 1, -40),
@@ -232,36 +176,17 @@ function VxzToLib:MakeWindow(options)
         Parent = self.Window
     })
     
-    
-    self.Avatar = Create("ImageLabel", {
-        Size = UDim2.new(0, 24, 0, 24),
-        Position = UDim2.new(1, -30, 0.5, -12),
-        BackgroundTransparency = 1,
-        Parent = self.UserPanel
-    })
-    
-
-    Create("Frame", {
-        Size = UDim2.new(1, 2, 1, 2),
-        Position = UDim2.new(0, -1, 0, -1),
-        BackgroundColor3 = Color3.fromRGB(80, 0, 120),
-        BorderSizePixel = 0,
-        Parent = self.Avatar
-    })
-    
-    
     self.DisplayName = Create("TextLabel", {
         Size = UDim2.new(1, -60, 1, 0),
         Position = UDim2.new(0, 5, 0, 0),
         BackgroundTransparency = 1,
-        Text = "Loading...",
+        Text = "Player",
         TextColor3 = Color3.fromRGB(180, 80, 255),
         Font = Enum.Font.Gotham,
         TextSize = 12,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = self.UserPanel
     })
-    
     
     self.NotificationContainer = Create("Frame", {
         Size = UDim2.new(0, 300, 0, 0),
@@ -271,13 +196,11 @@ function VxzToLib:MakeWindow(options)
         Parent = self.ScreenGui
     })
     
-    
     Create("UIListLayout", {
         Parent = self.NotificationContainer,
         SortOrder = Enum.SortOrder.LayoutOrder,
         Padding = UDim.new(0, 10)
     })
-    
     
     local dragging = false
     local dragInput, dragStart, startPos
@@ -289,17 +212,13 @@ function VxzToLib:MakeWindow(options)
             startPos = self.Window.Position
             
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
     
     TitleBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
     end)
     
     game:GetService("UserInputService").InputChanged:Connect(function(input)
@@ -309,14 +228,12 @@ function VxzToLib:MakeWindow(options)
         end
     end)
     
-    
     self.CloseButton.MouseButton1Click:Connect(function()
         self.Config.CloseCallback()
         Tween(self.Window, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
         wait(0.3)
         self.ScreenGui:Destroy()
     end)
-    
     
     local minimized = false
     self.MinimizeButton.MouseButton1Click:Connect(function()
@@ -332,37 +249,22 @@ function VxzToLib:MakeWindow(options)
         end
     end)
     
-    
     game:GetService("UserInputService").InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.LeftShift then
             self.ScreenGui.Enabled = not self.ScreenGui.Enabled
         end
     end)
     
-    
     spawn(function()
         local player = game:GetService("Players").LocalPlayer
         self.DisplayName.Text = player.DisplayName or player.Name
-        
-        
-        local thumbType = Enum.ThumbnailType.HeadShot
-        local thumbSize = Enum.ThumbnailSize.Size48x48
-        local content, isReady = player:GetUserThumbnailAsync(thumbType, thumbSize)
-        self.Avatar.Image = content
     end)
-    
-    
-    if self.Config.SaveConfig then
-        self:LoadConfig()
-    end
     
     return self
 end
 
-
 function VxzToLib:MakeTab(options)
     local TabButton = Create("TextButton", {
-        Name = "Tab_"..options.Name,
         Size = UDim2.new(0, 100, 1, 0),
         BackgroundColor3 = Color3.fromRGB(40, 20, 60),
         BorderSizePixel = 0,
@@ -373,19 +275,7 @@ function VxzToLib:MakeTab(options)
         Parent = self.TabContainer
     })
     
-    local TabIcon = Create("ImageLabel", {
-        Size = UDim2.new(0, 20, 0, 20),
-        Position = UDim2.new(0, 5, 0.5, -10),
-        BackgroundTransparency = 1,
-        Image = options.Icon,
-        Parent = TabButton
-    })
-    
-    TabButton.TextXAlignment = Enum.TextXAlignment.Left
-    TabButton.Text = "  "..options.Name
-    
     local TabContent = Create("Frame", {
-        Name = "TabContent_"..options.Name,
         Size = UDim2.new(1, 0, 0, 0),
         BackgroundTransparency = 1,
         Visible = false,
@@ -413,41 +303,40 @@ function VxzToLib:MakeTab(options)
     local tabObj = {
         Button = TabButton,
         Content = TabContent,
-        AddSection = function(self, options)
-            return self:AddSection(options)
+        AddSection = function(_, options)
+            return VxzToLib.AddSection(TabContent, options)
         end,
-        AddButton = function(self, options)
-            return self:AddButton(options)
+        AddButton = function(_, options)
+            return VxzToLib.AddButton(TabContent, options)
         end,
-        AddToggle = function(self, options)
-            return self:AddToggle(options)
+        AddToggle = function(_, options)
+            return VxzToLib.AddToggle(TabContent, options)
         end,
-        AddSlider = function(self, options)
-            return self:AddSlider(options)
+        AddSlider = function(_, options)
+            return VxzToLib.AddSlider(TabContent, options)
         end,
-        AddLabel = function(self, options)
-            return self:AddLabel(options)
+        AddLabel = function(_, text)
+            return VxzToLib.AddLabel(TabContent, text)
         end,
-        AddParagraph = function(self, options)
-            return self:AddParagraph(options)
+        AddParagraph = function(_, title, content)
+            return VxzToLib.AddParagraph(TabContent, title, content)
         end,
-        AddTextbox = function(self, options)
-            return self:AddTextbox(options)
+        AddTextbox = function(_, options)
+            return VxzToLib.AddTextbox(TabContent, options)
         end,
-        AddBind = function(self, options)
-            return self:AddBind(options)
+        AddBind = function(_, options)
+            return VxzToLib.AddBind(TabContent, options)
         end,
-        AddDropdown = function(self, options)
-            return self:AddDropdown(options)
+        AddDropdown = function(_, options)
+            return VxzToLib.AddDropdown(TabContent, options)
         end,
-        AddColorpicker = function(self, options)
-            return self:AddColorpicker(options)
+        AddColorpicker = function(_, options)
+            return VxzToLib.AddColorpicker(TabContent, options)
         end
     }
     
     self.Tabs = self.Tabs or {}
     table.insert(self.Tabs, tabObj)
-    
     
     if #self.Tabs == 1 then
         TabContent.Visible = true
@@ -457,12 +346,11 @@ function VxzToLib:MakeTab(options)
     return tabObj
 end
 
-
-function VxzToLib:AddSection(options)
+function VxzToLib.AddSection(parent, options)
     local SectionFrame = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 30),
         BackgroundTransparency = 1,
-        Parent = self.Content
+        Parent = parent
     })
     
     Create("TextLabel", {
@@ -503,40 +391,39 @@ function VxzToLib:AddSection(options)
     local sectionObj = {
         Frame = SectionFrame,
         Content = SectionContent,
-        AddButton = function(self, options)
-            return self:AddButton(options)
+        AddButton = function(_, buttonOptions)
+            return VxzToLib.AddButton(SectionContent, buttonOptions)
         end,
-        AddToggle = function(self, options)
-            return self:AddToggle(options)
+        AddToggle = function(_, toggleOptions)
+            return VxzToLib.AddToggle(SectionContent, toggleOptions)
         end,
-        AddSlider = function(self, options)
-            return self:AddSlider(options)
+        AddSlider = function(_, sliderOptions)
+            return VxzToLib.AddSlider(SectionContent, sliderOptions)
         end,
-        AddLabel = function(self, options)
-            return self:AddLabel(options)
+        AddLabel = function(_, text)
+            return VxzToLib.AddLabel(SectionContent, text)
         end,
-        AddParagraph = function(self, options)
-            return self:AddParagraph(options)
+        AddParagraph = function(_, title, content)
+            return VxzToLib.AddParagraph(SectionContent, title, content)
         end,
-        AddTextbox = function(self, options)
-            return self:AddTextbox(options)
+        AddTextbox = function(_, textboxOptions)
+            return VxzToLib.AddTextbox(SectionContent, textboxOptions)
         end,
-        AddBind = function(self, options)
-            return self:AddBind(options)
+        AddBind = function(_, bindOptions)
+            return VxzToLib.AddBind(SectionContent, bindOptions)
         end,
-        AddDropdown = function(self, options)
-            return self:AddDropdown(options)
+        AddDropdown = function(_, dropdownOptions)
+            return VxzToLib.AddDropdown(SectionContent, dropdownOptions)
         end,
-        AddColorpicker = function(self, options)
-            return self:AddColorpicker(options)
+        AddColorpicker = function(_, colorpickerOptions)
+            return VxzToLib.AddColorpicker(SectionContent, colorpickerOptions)
         end
     }
     
     return sectionObj
 end
 
--- Element creation functions
-function VxzToLib:AddButton(options)
+function VxzToLib.AddButton(parent, options)
     local Button = Create("TextButton", {
         Size = UDim2.new(1, 0, 0, 30),
         BackgroundColor3 = Color3.fromRGB(40, 20, 60),
@@ -545,7 +432,7 @@ function VxzToLib:AddButton(options)
         TextColor3 = Color3.fromRGB(200, 120, 255),
         Font = Enum.Font.Gotham,
         TextSize = 12,
-        Parent = self.Content
+        Parent = parent
     })
     
     Button.MouseEnter:Connect(function()
@@ -557,17 +444,17 @@ function VxzToLib:AddButton(options)
     end)
     
     Button.MouseButton1Click:Connect(function()
-        options.Callback()
+        if options.Callback then options.Callback() end
     end)
     
     return Button
 end
 
-function VxzToLib:AddToggle(options)
+function VxzToLib.AddToggle(parent, options)
     local ToggleFrame = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 30),
         BackgroundTransparency = 1,
-        Parent = self.Content
+        Parent = parent
     })
     
     Create("TextLabel", {
@@ -610,7 +497,7 @@ function VxzToLib:AddToggle(options)
                 Position = UDim2.new(0, value and 29 or 2, 0.5, -10.5)
             }, 0.2)
             
-            options.Callback(value)
+            if options.Callback then options.Callback(value) end
         end
     }
     
@@ -618,15 +505,360 @@ function VxzToLib:AddToggle(options)
         toggleObj:Set(not toggleObj.Value)
     end)
     
-    
-    if options.Flag then
-        self.Flags[options.Flag] = toggleObj
-    end
+    if options.Flag then VxzToLib.Flags[options.Flag] = toggleObj end
     
     return toggleObj
 end
 
+function VxzToLib.AddSlider(parent, options)
+    local SliderFrame = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 50),
+        BackgroundTransparency = 1,
+        Parent = parent
+    })
+    
+    Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
+        BackgroundTransparency = 1,
+        Text = options.Name,
+        TextColor3 = Color3.fromRGB(200, 120, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = SliderFrame
+    })
+    
+    local ValueLabel = Create("TextLabel", {
+        Size = UDim2.new(0, 60, 0, 20),
+        Position = UDim2.new(1, -60, 0, 0),
+        BackgroundTransparency = 1,
+        Text = tostring(options.Default),
+        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        Parent = SliderFrame
+    })
+    
+    local SliderTrack = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 5),
+        Position = UDim2.new(0, 0, 0, 25),
+        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
+        BorderSizePixel = 0,
+        Parent = SliderFrame
+    })
+    
+    local SliderFill = Create("Frame", {
+        Size = UDim2.new(0, 0, 1, 0),
+        BackgroundColor3 = Color3.fromRGB(180, 80, 255),
+        BorderSizePixel = 0,
+        Parent = SliderTrack
+    })
+    
+    local SliderButton = Create("TextButton", {
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new(0, 0, 0.5, -7.5),
+        BackgroundColor3 = Color3.fromRGB(220, 150, 255),
+        BorderSizePixel = 0,
+        Text = "",
+        ZIndex = 2,
+        Parent = SliderTrack
+    })
+    
+    local min = options.Min or 0
+    local max = options.Max or 100
+    local default = math.clamp(options.Default or 50, min, max)
+    local increment = options.Increment or 1
+    local valueName = options.ValueName or ""
+    
+    local function setValue(value)
+        local clamped = math.clamp(value, min, max)
+        local percentage = (clamped - min) / (max - min)
+        
+        SliderFill.Size = UDim2.new(percentage, 0, 1, 0)
+        SliderButton.Position = UDim2.new(percentage, -7.5, 0.5, -7.5)
+        ValueLabel.Text = tostring(clamped) .. (valueName ~= "" and " " .. valueName or "")
+        
+        if options.Callback then options.Callback(clamped) end
+    end
+    
+    local sliderObj = {
+        Value = default,
+        Set = function(self, value) self.Value = value setValue(value) end
+    }
+    
+    setValue(default)
+    
+    local dragging = false
+    SliderButton.MouseButton1Down:Connect(function() dragging = true end)
+    
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+    
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local mousePos = game:GetService("UserInputService"):GetMouseLocation()
+            local sliderPos = SliderTrack.AbsolutePosition
+            local sliderSize = SliderTrack.AbsoluteSize.X
+            local relativeX = math.clamp(mousePos.X - sliderPos.X, 0, sliderSize)
+            local percentage = relativeX / sliderSize
+            local value = min + (max - min) * percentage
+            value = math.floor(value / increment + 0.5) * increment
+            
+            sliderObj.Value = value
+            setValue(value)
+        end
+    end)
+    
+    if options.Flag then VxzToLib.Flags[options.Flag] = sliderObj end
+    
+    return sliderObj
+end
 
+function VxzToLib.AddLabel(parent, text)
+    local Label = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
+        BackgroundTransparency = 1,
+        Text = text,
+        TextColor3 = Color3.fromRGB(200, 150, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = parent
+    })
+    
+    local labelObj = {
+        Set = function(self, newText) Label.Text = newText end
+    }
+    
+    return labelObj
+end
+
+function VxzToLib.AddParagraph(parent, title, content)
+    local ParagraphFrame = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundTransparency = 1,
+        Parent = parent
+    })
+    
+    local TitleLabel = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
+        BackgroundTransparency = 1,
+        Text = title,
+        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = ParagraphFrame
+    })
+    
+    local ContentLabel = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
+        Position = UDim2.new(0, 0, 0, 20),
+        BackgroundTransparency = 1,
+        Text = content,
+        TextColor3 = Color3.fromRGB(200, 150, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = ParagraphFrame
+    })
+    
+    local paragraphObj = {
+        Set = function(self, newTitle, newContent)
+            TitleLabel.Text = newTitle
+            ContentLabel.Text = newContent
+        end
+    }
+    
+    return paragraphObj
+end
+
+function VxzToLib.AddTextbox(parent, options)
+    local TextboxFrame = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundTransparency = 1,
+        Parent = parent
+    })
+    
+    Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
+        BackgroundTransparency = 1,
+        Text = options.Name,
+        TextColor3 = Color3.fromRGB(200, 120, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = TextboxFrame
+    })
+    
+    local Textbox = Create("TextBox", {
+        Size = UDim2.new(1, 0, 0, 20),
+        Position = UDim2.new(0, 0, 0, 20),
+        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
+        BorderSizePixel = 0,
+        Text = options.Default or "",
+        TextColor3 = Color3.fromRGB(200, 150, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        Parent = TextboxFrame
+    })
+    
+    Textbox.FocusLost:Connect(function()
+        if options.TextDisappear then Textbox.Text = "" end
+        if options.Callback then options.Callback(Textbox.Text) end
+    end)
+    
+    return Textbox
+end
+
+function VxzToLib.AddBind(parent, options)
+    local BindFrame = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1,
+        Parent = parent
+    })
+    
+    Create("TextLabel", {
+        Size = UDim2.new(0.7, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Text = options.Name,
+        TextColor3 = Color3.fromRGB(200, 120, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = BindFrame
+    })
+    
+    local BindButton = Create("TextButton", {
+        Size = UDim2.new(0.3, 0, 1, -10),
+        Position = UDim2.new(0.7, 0, 0, 5),
+        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
+        BorderSizePixel = 0,
+        Text = tostring(options.Default.Name),
+        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        Parent = BindFrame
+    })
+    
+    local bindObj = {
+        Value = options.Default,
+        Set = function(self, value)
+            self.Value = value
+            BindButton.Text = tostring(value.Name)
+        end
+    }
+    
+    BindButton.MouseButton1Click:Connect(function()
+        BindButton.Text = "..."
+        local input = game:GetService("UserInputService").InputBegan:Wait()
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            bindObj:Set(input.KeyCode)
+            if options.Callback then options.Callback(input.KeyCode) end
+        end
+    end)
+    
+    if options.Flag then VxzToLib.Flags[options.Flag] = bindObj end
+    
+    return bindObj
+end
+
+function VxzToLib.AddDropdown(parent, options)
+    local DropdownFrame = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1,
+        Parent = parent
+    })
+    
+    Create("TextLabel", {
+        Size = UDim2.new(0.7, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Text = options.Name,
+        TextColor3 = Color3.fromRGB(200, 120, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = DropdownFrame
+    })
+    
+    local DropdownButton = Create("TextButton", {
+        Size = UDim2.new(0.3, 0, 1, -10),
+        Position = UDim2.new(0.7, 0, 0, 5),
+        BackgroundColor3 = Color3.fromRGB(40, 20, 60),
+        BorderSizePixel = 0,
+        Text = options.Default or "Select",
+        TextColor3 = Color3.fromRGB(180, 80, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        Parent = DropdownFrame
+    })
+    
+    local DropdownList = Create("Frame", {
+        Size = UDim2.new(0.3, 0, 0, 0),
+        Position = UDim2.new(0.7, 0, 0, 35),
+        BackgroundColor3 = Color3.fromRGB(30, 15, 45),
+        BorderSizePixel = 0,
+        Visible = false,
+        Parent = DropdownFrame
+    })
+    
+    Create("UIListLayout", {
+        Parent = DropdownList,
+        Padding = UDim.new(0, 2)
+    })
+    
+    local dropdownObj = {
+        Value = options.Default,
+        Options = options.Options or {},
+        Refresh = function(self, newOptions, clear)
+            if clear then
+                for _, child in ipairs(DropdownList:GetChildren()) do
+                    if child:IsA("TextButton") then child:Destroy() end
+                end
+            end
+            
+            self.Options = newOptions or self.Options
+            
+            for _, option in ipairs(self.Options) do
+                local OptionButton = Create("TextButton", {
+                    Size = UDim2.new(1, 0, 0, 25),
+                    BackgroundColor3 = Color3.fromRGB(40, 20, 60),
+                    BorderSizePixel = 0,
+                    Text = option,
+                    TextColor3 = Color3.fromRGB(180, 80, 255),
+                    Font = Enum.Font.Gotham,
+                    TextSize = 12,
+                    Parent = DropdownList
+                })
+                
+                OptionButton.MouseButton1Click:Connect(function()
+                    dropdownObj.Value = option
+                    DropdownButton.Text = option
+                    DropdownList.Visible = false
+                    if options.Callback then options.Callback(option) end
+                end)
+            end
+        end,
+        Set = function(self, value)
+            self.Value = value
+            DropdownButton.Text = value
+            if options.Callback then options.Callback(value) end
+        end
+    }
+    
+    dropdownObj:Refresh(options.Options, false)
+    
+    DropdownButton.MouseButton1Click:Connect(function()
+        DropdownList.Visible = not DropdownList.Visible
+        DropdownList.Size = UDim2.new(0.3, 0, 0, #dropdownObj.Options * 27)
+    end)
+    
+    if options.Flag then VxzToLib.Flags[options.Flag] = dropdownObj end
+    
+    return dropdownObj
+end
 
 function VxzToLib:MakeNotification(options)
     local Notification = Create("Frame", {
@@ -642,7 +874,7 @@ function VxzToLib:MakeNotification(options)
         Size = UDim2.new(0, 40, 0, 40),
         Position = UDim2.new(0, 5, 0, 5),
         BackgroundTransparency = 1,
-        Image = options.Image or Assets.Notification,
+        Image = options.Image or "rbxassetid://6031094678",
         Parent = Notification
     })
     
@@ -658,7 +890,7 @@ function VxzToLib:MakeNotification(options)
         Parent = Notification
     })
     
-    Create("TextLabel", {
+    local ContentLabel = Create("TextLabel", {
         Size = UDim2.new(1, -10, 0, 0),
         Position = UDim2.new(0, 10, 0, 45),
         BackgroundTransparency = 1,
@@ -671,87 +903,25 @@ function VxzToLib:MakeNotification(options)
         Parent = Notification
     })
     
-    local contentSize = 0
-    for i = 1, #options.Content, 60 do
-        contentSize = contentSize + 1
-    end
+    local textHeight = math.ceil(#options.Content / 30) * 15
+    Notification.Size = UDim2.new(1, 0, 0, 50 + textHeight)
+    ContentLabel.Size = UDim2.new(1, -10, 0, textHeight)
     
-    Notification.Size = UDim2.new(1, 0, 0, 50 + (contentSize * 12))
-    Notification["TextLabel"].Size = UDim2.new(1, -10, 0, contentSize * 12)
-    
+    Notification.Position = UDim2.new(0.5, -150, 0, -Notification.AbsoluteSize.Y)
+    Tween(Notification, {Position = UDim2.new(0.5, -150, 0, 10)}, 0.5)
     
     spawn(function()
         wait(options.Time or 5)
-        Tween(Notification, {Size = UDim2.new(1, 0, 0, 0)}, 0.3)
-        wait(0.3)
+        Tween(Notification, {Position = UDim2.new(0.5, -150, 0, -Notification.AbsoluteSize.Y)}, 0.5)
+        wait(0.5)
         Notification:Destroy()
     end)
     
     return Notification
 end
 
-
-function VxzToLib:SaveConfig()
-    if not self.Config.SaveConfig then return end
-    
-    local config = {}
-    
-    
-    for flag, element in pairs(self.Flags) do
-        if element.Value ~= nil then
-            config[flag] = element.Value
-        end
-    end
-    
-    
-    local success, err = pcall(function()
-        if not isfolder(self.Config.ConfigFolder) then
-            makefolder(self.Config.ConfigFolder)
-        end
-        
-        local filePath = self.Config.ConfigFolder .. "/" .. game.PlaceId .. ".json"
-        writefile(filePath, game:GetService("HttpService"):JSONEncode(config))
-    end)
-    
-    if not success then
-        self:MakeNotification({
-            Name = "Config Error",
-            Content = "Failed to save config: " .. err,
-            Time = 5
-        })
-    end
-end
-
-function VxzToLib:LoadConfig()
-    if not self.Config.SaveConfig then return end
-    
-    local success, config = pcall(function()
-        local filePath = self.Config.ConfigFolder .. "/" .. game.PlaceId .. ".json"
-        if isfile(filePath) then
-            return game:GetService("HttpService"):JSONDecode(readfile(filePath))
-        end
-    end)
-    
-    if success and config then
-        for flag, value in pairs(config) do
-            if self.Flags[flag] and self.Flags[flag].Set then
-                self.Flags[flag]:Set(value)
-            end
-        end
-    end
-end
-
-function VxzToLib:Init()
-
-    self.ScreenGui.Parent = game:GetService("CoreGui")
-    return self
-end
-
 function VxzToLib:Destroy()
-    if self.ScreenGui then
-        self.ScreenGui:Destroy()
-    end
-    self = nil
+    if self.ScreenGui then self.ScreenGui:Destroy() end
 end
 
 return VxzToLib
