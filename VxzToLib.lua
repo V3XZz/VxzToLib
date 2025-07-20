@@ -1,7 +1,5 @@
--- VxzToLib - Modern Hacker UI Library
 local VxzToLib = {Flags = {}, Tabs = {}, Config = {}, Theme = {}}
 
--- Safe service initialization
 local function GetService(serviceName)
     local service = game:GetService(serviceName)
     if not service then
@@ -17,7 +15,6 @@ local Players = GetService("Players")
 local RunService = GetService("RunService")
 local CoreGui = GetService("CoreGui")
 
--- Fallback for service errors
 if not TweenService then
     warn("[VxzToLib] TweenService not available - creating fallback")
     TweenService = {
@@ -27,9 +24,8 @@ if not TweenService then
     }
 end
 
--- Default theme settings
 VxzToLib.Theme = {
-    BackgroundColor = Color3.fromRGB(40, 40, 45),
+    BackgroundColor = Color3.fromRGB(60, 60, 65),
     BorderColor = Color3.fromRGB(150, 80, 220),
     BorderThickness = 2,
     TextColor = Color3.fromRGB(220, 180, 255),
@@ -93,12 +89,10 @@ function VxzToLib:SetTheme(theme)
 end
 
 function VxzToLib:MakeWindow(options)
-    -- Cleanup previous instances
     if self.ScreenGui and self.ScreenGui.Parent then
         self.ScreenGui:Destroy()
     end
     
-    -- Apply custom theme if provided
     if options and options.Theme then
         self:SetTheme(options.Theme)
     end
@@ -126,7 +120,6 @@ function VxzToLib:MakeWindow(options)
         return nil
     end
     
-    -- Handle intro safely
     if self.Config.IntroEnabled then
         local IntroIcon = Create("ImageLabel", {
             AnchorPoint = Vector2.new(0.5, 0.5),
@@ -182,7 +175,6 @@ function VxzToLib:MakeWindow(options)
     
     Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = self.Window})
     
-    -- Main window border
     local Border = Create("Frame", {
         Size = UDim2.new(1, self.Theme.BorderThickness*2, 1, self.Theme.BorderThickness*2),
         Position = UDim2.new(0, -self.Theme.BorderThickness, 0, -self.Theme.BorderThickness),
@@ -197,7 +189,6 @@ function VxzToLib:MakeWindow(options)
         Create("UICorner", {CornerRadius = UDim.new(0, 16), Parent = Border})
     end
     
-    -- Title bar with border
     local TitleBar = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 36),
         BackgroundColor3 = self.Theme.TitleBarColor,
@@ -236,7 +227,7 @@ function VxzToLib:MakeWindow(options)
                 Position = UDim2.new(0.25, 0, 0.5, 0),
                 Size = UDim2.new(0, 20, 0, 20),
                 BackgroundTransparency = 1,
-                Image = "rbxassetid://6031094678",
+                Image = "rbxassetid://6031094667",
                 ImageColor3 = self.Theme.AccentColor,
                 Parent = Controls
             })
@@ -246,7 +237,7 @@ function VxzToLib:MakeWindow(options)
                 Position = UDim2.new(0.75, 0, 0.5, 0),
                 Size = UDim2.new(0, 20, 0, 20),
                 BackgroundTransparency = 1,
-                Image = "rbxassetid://6031094667",
+                Image = "rbxassetid://6031094670",
                 ImageColor3 = self.Theme.AccentColor,
                 Parent = Controls
             })
@@ -363,13 +354,19 @@ function VxzToLib:MakeWindow(options)
         })
     end
     
-    -- Draggable window functionality
     if TitleBar then
         local dragging = false
         local dragStart, startPos
         
+        local function UpdatePosition(input)
+            if dragging then
+                local delta = input.Position - dragStart
+                self.Window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
+        end
+        
         TitleBar.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true
                 dragStart = input.Position
                 startPos = self.Window.Position
@@ -380,14 +377,12 @@ function VxzToLib:MakeWindow(options)
         end)
         
         UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                local delta = input.Position - dragStart
-                self.Window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                UpdatePosition(input)
             end
         end)
     end
     
-    -- Close button functionality
     if self.CloseButton then
         self.CloseButton.MouseButton1Click:Connect(function()
             self.Config.CloseCallback()
@@ -399,24 +394,24 @@ function VxzToLib:MakeWindow(options)
         end)
     end
     
-    -- Minimize functionality
     if self.MinimizeButton then
         local minimized = false
         self.MinimizeButton.MouseButton1Click:Connect(function()
             minimized = not minimized
             if minimized then
-                Tween(self.Window, {Size = UDim2.new(0, 600, 0, 90)}, 0.3)
-                if self.ContentContainer then self.ContentContainer.Visible = false end
+                Tween(self.Window, {Size = UDim2.new(0, 600, 0, 36)}, 0.3)
                 if self.TabScroller then self.TabScroller.Visible = false end
+                if self.ContentContainer then self.ContentContainer.Visible = false end
+                if self.UserPanel then self.UserPanel.Visible = false end
             else
                 Tween(self.Window, {Size = UDim2.new(0, 600, 0, 400)}, 0.3)
-                if self.ContentContainer then self.ContentContainer.Visible = true end
                 if self.TabScroller then self.TabScroller.Visible = true end
+                if self.ContentContainer then self.ContentContainer.Visible = true end
+                if self.UserPanel then self.UserPanel.Visible = true end
             end
         end)
     end
     
-    -- Toggle with LeftShift
     if UserInputService then
         UserInputService.InputBegan:Connect(function(input)
             if input.KeyCode == Enum.KeyCode.LeftShift then
@@ -553,7 +548,7 @@ function VxzToLib.AddSection(parent, options)
         
         Create("Frame", {
             AnchorPoint = Vector2.new(0, 0.5),
-            Position = UDim2.new(0, 0, 1, 0),
+            Position = UDim2.new(0, 0, 1, 10),
             Size = UDim2.new(1, 0, 0, 1),
             BackgroundColor3 = VxzToLib.Theme.SectionColor,
             BackgroundTransparency = 0.5,
@@ -577,7 +572,7 @@ function VxzToLib.AddSection(parent, options)
         if SectionLayout then
             SectionLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
                 SectionContent.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y)
-                SectionFrame.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y + 35)
+                SectionFrame.Size = UDim2.new(1, 0, 0, SectionLayout.AbsoluteContentSize.Y + 45)
             end)
         end
     end
@@ -616,7 +611,6 @@ function VxzToLib.AddButton(parent, options)
     
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Button})
     
-    -- Add hand cursor effect
     Button.MouseEnter:Connect(function()
         Tween(Button, {BackgroundColor3 = VxzToLib.Theme.ButtonHoverColor}, 0.2)
         Button.Text = "> " .. (options and options.Name or "Button")
@@ -696,7 +690,6 @@ function VxzToLib.AddToggle(parent, options)
         Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = ToggleCircle})
     end
     
-    -- Add hand cursor effect
     ToggleFrame.MouseEnter:Connect(function()
         Tween(ToggleFrame, {BackgroundColor3 = VxzToLib.Theme.ButtonHoverColor}, 0.2)
         Tween(ToggleButton, {BackgroundColor3 = (options and options.Default) and 
@@ -738,7 +731,6 @@ function VxzToLib.AddToggle(parent, options)
         end
     }
     
-    -- Connect to the button events
     ToggleButton.MouseButton1Click:Connect(function()
         toggleObj:Set(not toggleObj.Value)
     end)
